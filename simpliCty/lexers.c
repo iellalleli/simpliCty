@@ -62,7 +62,7 @@ void print_token(const Token *token) {
 
 
 void write_to_symbol_table(const Token *token, FILE *symbol_table_file) {
-    fprintf(symbol_table_file, "TOKEN: %-20s TYPE: %-20s LINE: %zu\n", 
+    fprintf(symbol_table_file, "TOKEN: %-20s TYPE: %-30s LINE: %zu\n", 
             token->value, 
             token_type_to_string(token->type), 
             token->line_num);
@@ -79,13 +79,24 @@ Token *classify_number(const char *source, int *index) {
     char buffer[64] = {0};
     int buffer_index = 0;
     int has_decimal = 0;
+    int is_flagged = 0;
 
     // Extract the number, allowing one decimal point
-    while (isdigit(source[*index]) || (source[*index] == '.' && !has_decimal)) {
+    while (isdigit(source[*index]) || (source[*index] == '.') || (isalpha(source[*index]) || ispunct(source[*index]))) {
         if (source[*index] == '.') {
-            has_decimal = 1;
+            has_decimal++;
+        } else if (isalpha(source[*index]) || strchr("@#", source[*index])){ // Flags for containing letters and special characters
+            is_flagged++;
+        } else if (ispunct(source[*index]) && !(strchr("@#", source[*index]))){ // Exits loop if an operator is seen
+            break;
         }
+        
         buffer[buffer_index++] = source[(*index)++];
+    }
+
+    // Determines if the number of decimals is invalid or has letters
+    if (has_decimal > 1 || is_flagged){
+        return create_token(TOKEN_INVALID, buffer, line_number);
     }
 
     // Determine the token type based on the presence of a decimal point
@@ -162,6 +173,7 @@ Token *classify_comment(const char *source, int *index) {
         while (source[*index] != '\n' && source[*index] != '\0') {
             buffer[buffer_index++] = source[(*index)++];
         }
+        printf("TOKEN: %s", buffer);
         return create_token(TOKEN_COMMENT, buffer, line_number);  // single-line comment
     }
 
@@ -616,15 +628,28 @@ Token **tokenize(const char *source, size_t *token_count) {
         else if (isalpha(c) || c == '_') {
             char buffer[64] = {0};
             int buffer_index = 0;
+            int is_flagged = 0;
 
-            while (isalnum(source[index]) || source[index] == '_') {
+            while (isalnum(source[index]) || ispunct(source[index])) {
+                if (source[index] == '_'){
+                } else if (strchr("@#.", source[index])) {
+                    is_flagged++;
+                } else if (ispunct(source[index]) && !strchr("@#.", source[index])) {
+                    break;
+                }
+                                
                 buffer[buffer_index++] = source[index++];
             }
 
-            token = classify_word(buffer); // Call the improved function
+            if (is_flagged){
+                token = create_token(TOKEN_INVALID, buffer, line_number);
+            
+            } else {
+                token = classify_word(buffer); // Call the improved function
+            }
         }
         // Operators
-        else if (strchr("+-*/=$%^<>!&|", c)) {  // Include new operators ($, %, ^)
+        else if (strchr("+-*/=$%^<>!&", c)) {  // Include new operators ($, %, ^)
             token = classify_operator(source, &index);
         }
         // Delimiters
@@ -639,10 +664,9 @@ Token **tokenize(const char *source, size_t *token_count) {
             token = classify_character(source, &index);
         }
         // Handle unrecognized characters
-        else {
+        else if (ispunct(source[index])) {
+            token = classify_operator(source, &index);
             fprintf(stderr, "Unrecognized character '%c' at line %zu\n", c, line_number);
-            index++;
-            continue;
         }
 
         // Store token

@@ -59,5 +59,6 @@ typedef enum {
 
 void print_token(const Token *token);
 Token **lexer(FILE *file, size_t *token_count);
+void write_to_symbol_table(const Token *token, FILE *symbol_table_file);
 
 #endif // LEXER_H_

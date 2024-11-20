@@ -22,6 +22,14 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    // Open the output file for the symbol table
+    FILE *symbol_table = fopen("output/symbol_table.txt", "w");
+    if (!symbol_table) {
+        printf("ERROR: Unable to create the output file\n");
+        fclose(file);
+        exit(1);
+    }
+
     // Get tokens from the lexer
     size_t token_count = 0;
     Token **tokens = lexer(file, &token_count);
@@ -37,6 +45,7 @@ int main(int argc, char *argv[]) {
     printf("Tokens generated:\n");
     for (size_t i = 0; i < token_count; i++) {
         print_token(tokens[i]);
+        write_to_symbol_table(tokens[i], symbol_table);
     }
 
     // Clean up allocated memory for tokens
