@@ -16,10 +16,10 @@ Token *create_token(TokenType type, const char *value, size_t line_num) {
     return token;
 }
 
-
 const char* token_type_to_string(TokenType type) {
     switch (type) {
         case TOKEN_KEYWORD: return "KEYWORD";
+        case TOKEN_RESERVED_WORD: return "RESERVED-WORD";
         case TOKEN_IDENTIFIER: return "IDENTIFIER";
         case TOKEN_NUMBER: return "NUMBER";
         case TOKEN_ARITHMETIC_OPERATOR: return "ARITHMETIC_OPERATOR";
@@ -28,6 +28,9 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_ASSIGNMENT_OPERATOR: return "ASSIGNMENT_OPERATOR";
         case TOKEN_DELIMITER: return "DELIMITER";
         case TOKEN_UNARY_OPERATOR: return "UNARY_OPERATOR";
+        case TOKEN_NOISE_WORD: return "NOISE_WORD";
+        case TOKEN_COMMENT: return "COMMENT";
+        case TOKEN_STRING: return "STRING";
         case TOKEN_UNKNOWN: return "UNKNOWN";
         case TOKEN_EOF: return "EOF";
         default: return "UNDEFINED";
@@ -40,7 +43,6 @@ void print_token(const Token *token) {
            token_type_to_string(token->type), 
            token->line_num);
 }
-
 
 
 // Free token memory
@@ -62,91 +64,251 @@ Token *generate_number(const char *source, int *index) {
 
 // Classify keywords or identifiers using switch-case
 Token *classify_keyword_or_identifier(const char *lexeme) {
-    int len = strlen(lexeme);
+    int startIdx = 0;
 
-    // Start at the "initial state" (q0)
-    switch (lexeme[0]) {
-        case 'b': // Check for "break"
-            if (len == 5) { // Ensure the word has the correct length
-                switch (lexeme[1]) {
-                    case 'r':
-                        switch (lexeme[2]) {
-                            case 'e':
-                                switch (lexeme[3]) {
-                                    case 'a':
-                                        switch (lexeme[4]) {
-                                            case 'k':
-                                                return create_token(TOKEN_KEYWORD, "BREAK", line_number);
-                                        }
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
+    switch (lexeme[startIdx]) {
+        case 'b':
+            switch (lexeme[startIdx] + 1) {
+                case 'r':
+                    if (lexeme[startIdx + 2] == 'r' && lexeme[startIdx + 3] == 'e' && lexeme[startIdx + 4] == 'a' && 
+                    lexeme[startIdx + 5] == 'k' && lexeme[startIdx + 6] == '\0') {
+                        return create_token(TOKEN_KEYWORD, "BREAK", line_number); // "break"
+                    }
+                    break;
+                case 'o':
+                    if (lexeme[startIdx + 2] == 'o' && lexeme[startIdx + 3] == 'o' && lexeme[startIdx + 4] == 'l' && 
+                    lexeme[startIdx + 5] == 'e' && lexeme[startIdx + 6] == 'a' && lexeme[startIdx + 6] == 'n' && 
+                    lexeme[startIdx + 6] == '\0') {
+                        return create_token(TOKEN_RESERVED_WORD, "BOOLEAN", line_number); // "boolean"
+                    }
+                    break;
+            }
+            break;
+        
+        case 'c': // Handles words starting with 'c'
+            switch (lexeme[startIdx + 1]) {
+                case 'h': // "character"
+                    if (lexeme[startIdx + 2] == 'a' && lexeme[startIdx + 3] == 'r' &&
+                        lexeme[startIdx + 4] == 'a' && lexeme[startIdx + 5] == 'c' &&
+                        lexeme[startIdx + 6] == 't' && lexeme[startIdx + 7] == 'e' &&
+                        lexeme[startIdx + 8] == 'r' && lexeme[startIdx + 9] == '\0') {
+                        return create_token(TOKEN_RESERVED_WORD, "CHARACTER", line_number); // "character"
+                    }
+                    break;
+
+                case 'o': 
+                    switch (lexeme[startIdx + 2]) {
+                        case 'n': 
+                            switch (lexeme[startIdx + 3]) {
+                                case 's': 
+                                    if (lexeme[startIdx + 4] == 't' && lexeme[startIdx + 5] == 'a' &&
+                                        lexeme[startIdx + 6] == 'n' && lexeme[startIdx + 7] == 't' &&
+                                        lexeme[startIdx + 8] == '\0') {
+                                        return create_token(TOKEN_RESERVED_WORD, "CONSTANT", line_number); // "constant"
+                                    }
+                                    break;
+
+                                case 't': 
+                                    if (lexeme[startIdx + 4] == 'i' && lexeme[startIdx + 5] == 'n' &&
+                                        lexeme[startIdx + 6] == 'u' && lexeme[startIdx + 7] == 'e' &&
+                                        lexeme[startIdx + 8] == '\0') {
+                                        return create_token(TOKEN_KEYWORD, "CONTINUE", line_number);// "continue"
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
+            break;
+
+        case 'd':
+            switch (lexeme[startIdx + 1]) {
+                case 'o':
+                    if (lexeme[startIdx + 2] == '\0') {
+                            return create_token(TOKEN_NOISE_WORD, "DO", line_number); // "do"
+                    }
+                    break;
+                case 'e':
+                    if (lexeme[startIdx + 2] == 'f' && lexeme[startIdx + 3] == 'a' &&
+                        lexeme[startIdx + 4] == 'u' && lexeme[startIdx + 5] == 'l' &&
+                        lexeme[startIdx + 6] == 't' && lexeme[startIdx + 7] == '\0') {
+                            return create_token(TOKEN_KEYWORD, "DEFAULT", line_number); // "default"
+                    }
+                    break;
+                case 'i':
+                    if (lexeme[startIdx + 2] == 's' && lexeme[startIdx + 3] == 'p' &&
+                        lexeme[startIdx + 4] == 'l' && lexeme[startIdx + 5] == 'a' &&
+                        lexeme[startIdx + 6] == 'y' && lexeme[startIdx + 7] == '\0') {
+                            return create_token(TOKEN_KEYWORD, "DISPLAY", line_number); // "display"
+                    }
+                    break;
+            }
+            break;
+        
+        case 'e':
+            switch (lexeme[startIdx + 1]) {
+                case 'l':
+                    if (lexeme[startIdx + 2] == 's' && lexeme[startIdx + 3] == 'e' &&
+                        lexeme[startIdx + 4] == '\0') {
+                            return create_token(TOKEN_KEYWORD, "ELSE", line_number); // "else"
+                    }
+                    break;
+                case 'n':
+                    if (lexeme[startIdx + 2] == 'd' && lexeme[startIdx + 3] == '\0') {
+                    return create_token(TOKEN_NOISE_WORD, "END", line_number);// "end"
                 }
+                break;
             }
             break;
 
-        case 'i': // Check for "int" or "if"
-            if (len == 3 && lexeme[1] == 'n' && lexeme[2] == 't') {
-                return create_token(TOKEN_KEYWORD, "INT", line_number);
-            } else if (len == 2 && lexeme[1] == 'f') {
-                return create_token(TOKEN_KEYWORD, "IF", line_number);
+        case 'f':
+            switch (lexeme[startIdx + 1]) {
+                case 'o':
+                    if (lexeme[startIdx + 2] == 'r' && lexeme[startIdx + 3] == '\0') {
+                        return create_token(TOKEN_KEYWORD, "FOR", line_number); // "for"
+                    }
+                    break;
+                case 'l':
+                    if (lexeme[startIdx + 2] == 'o' && lexeme[startIdx + 3] == 'a' && lexeme[startIdx + 4] == 't' && lexeme[startIdx + 5] == '\0') {
+                        return create_token(TOKEN_RESERVED_WORD, "FLOAT", line_number); // "float"
+                    }
+                    break;
+                case 'a':
+                    if (lexeme[startIdx + 2] == 'l' && lexeme[startIdx + 3] == 's' && lexeme[startIdx + 4] == 'e' && lexeme[startIdx + 5] == '\0') {
+                        return create_token(TOKEN_RESERVED_WORD, "FALSE", line_number); // "false"
+                    }
+                    break;
             }
             break;
 
-        case 'r': // Check for "return"
-            if (len == 6) {
-                switch (lexeme[1]) {
-                    case 'e':
-                        switch (lexeme[2]) {
-                            case 't':
-                                switch (lexeme[3]) {
-                                    case 'u':
-                                        switch (lexeme[4]) {
-                                            case 'r':
-                                                switch (lexeme[5]) {
-                                                    case 'n':
-                                                        return create_token(TOKEN_KEYWORD, "RETURN", line_number);
-                                                }
-                                                break;
-                                        }
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                }
+        case 'i':
+            switch (lexeme[startIdx + 1]) {
+                case 'f':
+                    if (lexeme[startIdx + 2] == '\0') {
+                        return create_token(TOKEN_KEYWORD, "IF", line_number); // "if"
+                    }
+                    break;
+                case 'n':
+                    switch (lexeme[startIdx + 2]) {
+                        case 't':
+                            if (lexeme[startIdx + 3] == 'e' && lexeme[startIdx + 4] == 'g' &&
+                                lexeme[startIdx + 5] == 'e' && lexeme[startIdx + 6] == 'r' && lexeme[startIdx + 7] == '\0') {
+                                return create_token(TOKEN_RESERVED_WORD, "INTEGER", line_number); // "integer"
+                            }
+                            break;
+                        case 'p':
+                            if (lexeme[startIdx + 3] == 'u' && lexeme[startIdx + 4] == 't' &&
+                                lexeme[startIdx + 5] == '\0') {
+                                return create_token(TOKEN_KEYWORD, "INPUT", line_number); // "input"
+                            }
+                            break;
+                    }
+                    
+            }
+            break;
+        
+        case 'l':
+            switch (lexeme[startIdx + 1]) {
+                case 'e':
+                    if (lexeme[startIdx + 2] == 't' && lexeme[startIdx + 3] == '\0') {
+                            return create_token(TOKEN_NOISE_WORD, "LET", line_number);// "let"
+                    }
+                    break;
+            }
+            break;
+        
+        case 'm':
+            switch (lexeme[startIdx + 1]) {
+                case 'a':
+                    if (lexeme[startIdx + 2] == 'i' && lexeme[startIdx + 3] == 'n' &&
+                        lexeme[startIdx + 4] == '\0') {
+                            return create_token(TOKEN_KEYWORD, "MAIN", line_number); // "main"
+                    }
+                    break;
             }
             break;
 
-        case 'w': // Check for "while"
-            if (len == 5) {
-                switch (lexeme[1]) {
-                    case 'h':
-                        switch (lexeme[2]) {
-                            case 'i':
-                                switch (lexeme[3]) {
-                                    case 'l':
-                                        switch (lexeme[4]) {
-                                            case 'e':
-                                                return create_token(TOKEN_KEYWORD, "WHILE", line_number);
-                                        }
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                }
+        case 'n':
+            switch (lexeme[startIdx + 1]) {
+                case 'u':
+                    if (lexeme[startIdx + 2] == 'l' && lexeme[startIdx + 3] == 'l' &&
+                        lexeme[startIdx + 4] == '\0') {
+                            return create_token(TOKEN_RESERVED_WORD, "NULL", line_number); // "null"
+                    }
+                    break;
+            }
+            break;
+        
+        case 'r':
+            switch (lexeme[startIdx + 1]) {
+                case 'e':
+                    if (lexeme[startIdx + 2] == 't' && lexeme[startIdx + 3] == 'u' &&
+                        lexeme[startIdx + 4] == 'r' && lexeme[startIdx + 5] == 'n' &&
+                        lexeme[startIdx + 6] == '\0') {
+                            return create_token(TOKEN_KEYWORD, "RETURN", line_number); // "return"
+                    }
+                    break;
+            }
+            break;
+        
+        case 's':
+            switch (lexeme[startIdx + 1]) {
+                case 't':
+                    if (lexeme[startIdx + 2] == 'r' && lexeme[startIdx + 3] == 'i' &&
+                        lexeme[startIdx + 4] == 'n' && lexeme[startIdx + 5] == 'g' &&
+                        lexeme[startIdx + 6] == '\0') {
+                            return create_token(TOKEN_RESERVED_WORD, "STRING", line_number); // "string"
+                    }
+                    break;
             }
             break;
 
-        default:
+        case 't':
+            switch (lexeme[startIdx + 1]) {
+                case 'h':
+                    if (lexeme[startIdx + 2] == 'e' && lexeme[startIdx + 3] == 'n' &&
+                        lexeme[startIdx + 4] == '\0') {
+                            return create_token(TOKEN_NOISE_WORD, "THEN", line_number); // "then"
+                    }
+                    break;
+                case 'r':
+                    if (lexeme[startIdx + 2] == 'u' && lexeme[startIdx + 3] == 'e' &&
+                        lexeme[startIdx + 4] == '\0') {
+                            return create_token(TOKEN_RESERVED_WORD, "TRUE", line_number); // "true"
+                    }
+                    break;
+            }
+            break;
+        
+        case 'v':
+            switch (lexeme[startIdx + 1]) {
+                case 'o':
+                    if (lexeme[startIdx + 2] == 'i' && lexeme[startIdx + 3] == 'd' &&
+                        lexeme[startIdx + 4] == '\0') {
+                            return create_token(TOKEN_RESERVED_WORD, "VOID", line_number);// "void"
+                    }
+                    break;
+            }
+            break;
+
+        case 'w':
+            switch (lexeme[startIdx + 1]) {
+                case 'h':
+                    if (lexeme[startIdx + 2] == 'i' && lexeme[startIdx + 3] == 'l' &&
+                        lexeme[startIdx + 4] == 'e' &&  lexeme[startIdx + 5] == '\0') {
+                            return create_token(TOKEN_KEYWORD, "WHILE", line_number); // "while"
+                    }
+                    break;
+            }
+            break;
+        default: 
             break;
     }
 
     // If no keyword is matched, classify as an identifier
     return create_token(TOKEN_IDENTIFIER, lexeme, line_number);
+    
 }
 
 

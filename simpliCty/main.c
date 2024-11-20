@@ -4,11 +4,16 @@
 
 #include "lexers.h"
 
+#define VALID_EXTENSION ".cty"
+void check_file_type(const char* filename, const char* expectedExtension);
+
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        printf("Error: correct syntax: %s <filename.cty>\n", argv[0]);
+        fprintf(stderr, "Error: correct syntax: %s <filename.cty>\n\n", argv[0]);
         exit(1);
     }
+
+    check_file_type(argv[1], VALID_EXTENSION);
 
     // Open the .cty file provided as a command-line argument
     FILE *file = fopen(argv[1], "r");
@@ -45,4 +50,16 @@ int main(int argc, char *argv[]) {
 
     printf("Lexical analysis complete.\n");
     return 0;
+}
+
+// Only files with .cty extensions are accepted
+void check_file_type(const char* filename, const char* expectedExtension){
+    // Get pointer to the dot position at the end of the filename
+    const char *dot = strrchr(filename, '.');
+    
+    // Check if filename has an invalid extension
+    if(dot == NULL || strcmp(dot, expectedExtension) != 0){
+        fprintf(stderr, "Error: unexpected file type: %s\n\n", filename);
+        exit(1);
+    }
 }
