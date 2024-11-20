@@ -1,4 +1,12 @@
-int main() {
-    float x = 10;
-    false;
-}
+#include <stdio.h>
+~~ Single-line comment
+~^
+Multi-line
+comment
+^~
+integer x = 123;
+float y = 45.67;
+string name = "John";
+boolean tws = true;
+bool tws1 = false;
+unrecognized_token_here
