@@ -7,7 +7,7 @@
 size_t line_number = 1;        // Global line number
 
 
-// Helper function to create a token
+// Create a token
 Token *create_token(TokenType type, const char *value, size_t line_num) {
     Token *token = (Token *)malloc(sizeof(Token));
     token->type = type;
@@ -15,6 +15,7 @@ Token *create_token(TokenType type, const char *value, size_t line_num) {
     token->line_num = line_num;
     return token;
 }
+
 
 const char* token_type_to_string(TokenType type) {
     switch (type) {
@@ -44,6 +45,13 @@ void print_token(const Token *token) {
            token->line_num);
 }
 
+void write_to_symbol_table(const Token *token, FILE *symbol_table_file) {
+    fprintf(symbol_table_file, "TOKEN: %-20s TYPE: %-20s LINE: %zu\n", 
+            token->value, 
+            token_type_to_string(token->type), 
+            token->line_num);
+}
+
 
 // Free token memory
 void free_token(Token *token) {
@@ -52,18 +60,68 @@ void free_token(Token *token) {
 }
 
 Token *generate_number(const char *source, int *index) {
-    char buffer[32] = {0};
+    char buffer[64] = {0};
     int buffer_index = 0;
+    int has_decimal = 0;
 
-    while (isdigit(source[*index])) {
+    while (isdigit(source[*index]) || (source[*index] == '.' && !has_decimal)) {
+        if (source[*index] == '.') has_decimal = 1;
         buffer[buffer_index++] = source[(*index)++];
     }
+
     return create_token(TOKEN_NUMBER, buffer, line_number);
+}
+
+Token *generate_comment(const char *source, int *index) {
+    char buffer[256] = {0};  // Buffer to hold the comment content
+    int buffer_index = 0;
+    size_t start_line = line_number;  // Track start line of the comment
+
+    // Single-line comment: starts with `~~`
+    if (source[*index] == '~' && source[*index + 1] == '~') {
+        *index += 2;  // Skip the `~~`
+        while (source[*index] != '\n' && source[*index] != '\0') {
+            buffer[buffer_index++] = source[(*index)++];
+        }
+        return create_token(TOKEN_COMMENT, buffer, line_number);  // single-line comment
+    }
+
+    // Multi-line comment: starts with `~^` and ends with `^~`
+    if (source[*index] == '~' && source[*index + 1] == '^') {
+        *index += 2;  // Skip the `~^`
+        while (!(source[*index] == '^' && source[*index + 1] == '~') && source[*index] != '\0') {
+            if (source[*index] == '\n') {
+                line_number++;  // Increment the line number for each new line
+                buffer[buffer_index++] = ' ';  // Add a space instead of a newline
+            } else {
+                buffer[buffer_index++] = source[*index];  // Add other characters normally
+            }
+            (*index)++;
+        }
+
+        // Ensure we skip the closing `^~` if found
+        if (source[*index] == '^' && source[*index + 1] == '~') {
+            *index += 2;
+        } else {
+            printf("Warning: Unterminated multi-line comment at line %zu\n", line_number);
+        }
+
+        return create_token(TOKEN_COMMENT, buffer, start_line);
+    }
+
+    return NULL;  // Not a comment
+}
+
+
+
+Token *classify_unknown(char c) {
+    char unknown[2] = {c, '\0'};
+    return create_token(TOKEN_UNKNOWN, unknown, line_number);
 }
 
 
 // Classify keywords or identifiers using switch-case
-Token *classify_keyword_or_identifier(const char *lexeme) {
+Token *classify_word(const char *lexeme) {
     int startIdx = 0;
 
     switch (lexeme[startIdx]) {
@@ -312,6 +370,7 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
 }
 
 
+
 // Classifier for operators
 Token *classify_operator(const char *source, int *index) {
     char op = source[*index];
@@ -374,13 +433,13 @@ Token *classify_delimiter(char c, size_t line_number) {
 }
 
 
-// Tokenize source code into an array of tokens
 Token **tokenize(const char *source, size_t *token_count) {
     size_t capacity = 10;
     Token **tokens = malloc(capacity * sizeof(Token *));
     *token_count = 0;
     int index = 0;
     int length = strlen(source);
+    
 
     while (index < length) {
         char c = source[index];
@@ -394,6 +453,14 @@ Token **tokenize(const char *source, size_t *token_count) {
 
         Token *token = NULL;
 
+    if (source[index] == '~') {
+        Token *comment_token = generate_comment(source, &index);
+     if (comment_token) {
+            tokens[*token_count] = comment_token;
+            (*token_count)++;
+            continue;
+        }
+}
         // Numbers
         if (isdigit(c)) {
             token = generate_number(source, &index);
@@ -407,7 +474,7 @@ Token **tokenize(const char *source, size_t *token_count) {
                 buffer[buffer_index++] = source[index++];
             }
 
-            token = classify_keyword_or_identifier(buffer); // Call the improved function
+            token = classify_word(buffer); // Call the improved function
         }
         // Operators
         else if (strchr("+-*/=<>!&|", c)) {
@@ -441,7 +508,7 @@ Token **tokenize(const char *source, size_t *token_count) {
 }
 
 
-// Lexer function to read file and tokenize content
+// Modify the lexer function to accept the symbol table file
 Token **lexer(FILE *file, size_t *token_count) {
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
