@@ -7,7 +7,6 @@
 size_t line_number = 1;        // Global line number
 
 
-// Helper function to create a token
 Token *create_token(TokenType type, const char *value, size_t line_num) {
     Token *token = (Token *)malloc(sizeof(Token));
     token->type = type;
@@ -16,15 +15,17 @@ Token *create_token(TokenType type, const char *value, size_t line_num) {
     return token;
 }
 
+
 const char* token_type_to_string(TokenType type) {
     switch (type) {
         case TOKEN_KEYWORD: return "KEYWORD";
         case TOKEN_RESERVED_WORD: return "RESERVED-WORD";
         case TOKEN_IDENTIFIER: return "IDENTIFIER";
-        case TOKEN_NUMBER: return "NUMBER";
+        case TOKEN_INTEGER: return "INTEGER";
+        case TOKEN_FLOAT: return "FLOAT";     
         case TOKEN_ARITHMETIC_OPERATOR: return "ARITHMETIC_OPERATOR";
-        case TOKEN_RELATIONAL_OPERATOR: return "RELATIONAL_OPERATOR";
-        case TOKEN_LOGICAL_OPERATOR: return "LOGICAL_OPERATOR";
+        case TOKEN_BOOLEAN_OPERATOR_RELATIONAL: return "BOOLEAN_OPERATOR_RELATIONAL";
+        case TOKEN_BOOLEAN_OPERATOR_LOGICAL: return "BOOLEAN_OPERATOR_LOGICAL";
         case TOKEN_ASSIGNMENT_OPERATOR: return "ASSIGNMENT_OPERATOR";
         case TOKEN_DELIMITER: return "DELIMITER";
         case TOKEN_UNARY_OPERATOR: return "UNARY_OPERATOR";
@@ -37,6 +38,7 @@ const char* token_type_to_string(TokenType type) {
     }
 }
 
+
 void print_token(const Token *token) {
     printf("TOKEN: %s | TYPE: %s | LINE: %zu\n", 
            token->value, 
@@ -45,25 +47,111 @@ void print_token(const Token *token) {
 }
 
 
-// Free token memory
+void write_to_symbol_table(const Token *token, FILE *symbol_table_file) {
+    fprintf(symbol_table_file, "TOKEN: %-20s TYPE: %-20s LINE: %zu\n", 
+            token->value, 
+            token_type_to_string(token->type), 
+            token->line_num);
+}
+
+
 void free_token(Token *token) {
     if (token->value) free(token->value);
     free(token);
 }
 
-Token *generate_number(const char *source, int *index) {
-    char buffer[32] = {0};
-    int buffer_index = 0;
 
-    while (isdigit(source[*index])) {
+Token *classify_number(const char *source, int *index) {
+    char buffer[64] = {0};
+    int buffer_index = 0;
+    int has_decimal = 0;
+
+    // Extract the number, allowing one decimal point
+    while (isdigit(source[*index]) || (source[*index] == '.' && !has_decimal)) {
+        if (source[*index] == '.') {
+            has_decimal = 1;
+        }
         buffer[buffer_index++] = source[(*index)++];
     }
-    return create_token(TOKEN_NUMBER, buffer, line_number);
+
+    // Determine the token type based on the presence of a decimal point
+    TokenType type = has_decimal ? TOKEN_FLOAT : TOKEN_INTEGER;
+
+    return create_token(type, buffer, line_number);
 }
 
 
-// Classify keywords or identifiers using switch-case
-Token *classify_keyword_or_identifier(const char *lexeme) {
+Token *classify_string(const char *source, int *index) {
+    char buffer[256] = {0};
+    int buffer_index = 0;
+
+    (*index)++; // Skip the opening quote
+
+    while (source[*index] != '"' && source[*index] != '\0') {
+        if (source[*index] == '\n') {
+            line_number++; // Handle multi-line strings, if allowed
+        }
+        buffer[buffer_index++] = source[(*index)++];
+    }
+
+    if (source[*index] == '"') {
+        (*index)++; // Skip the closing quote
+    } else {
+        fprintf(stderr, "Unterminated string at line %zu\n", line_number);
+    }
+
+    return create_token(TOKEN_STRING, buffer, line_number);
+}
+
+
+Token *classify_comment(const char *source, int *index) {
+    char buffer[256] = {0};  // Buffer to hold the comment content
+    int buffer_index = 0;
+    size_t start_line = line_number;  // Track start line of the comment
+
+    // Single-line comment: starts with `~~`
+    if (source[*index] == '~' && source[*index + 1] == '~') {
+        *index += 2;  // Skip the `~~`
+        while (source[*index] != '\n' && source[*index] != '\0') {
+            buffer[buffer_index++] = source[(*index)++];
+        }
+        return create_token(TOKEN_COMMENT, buffer, line_number);  // single-line comment
+    }
+
+    // Multi-line comment: starts with `~^` and ends with `^~`
+    if (source[*index] == '~' && source[*index + 1] == '^') {
+        *index += 2;  // Skip the `~^`
+        while (!(source[*index] == '^' && source[*index + 1] == '~') && source[*index] != '\0') {
+            if (source[*index] == '\n') {
+                line_number++;  // Increment the line number for each new line
+                buffer[buffer_index++] = ' ';  // Add a space instead of a newline
+            } else {
+                buffer[buffer_index++] = source[*index];  // Add other characters normally
+            }
+            (*index)++;
+        }
+
+        // Ensure we skip the closing `^~` if found
+        if (source[*index] == '^' && source[*index + 1] == '~') {
+            *index += 2;
+        } else {
+            printf("Warning: Unterminated multi-line comment at line %zu\n", line_number);
+        }
+
+        return create_token(TOKEN_COMMENT, buffer, start_line);
+    }
+
+    return NULL;  // Not a comment
+}
+
+
+Token *classify_unknown(char c) {
+    char unknown[2] = {c, '\0'};
+    return create_token(TOKEN_UNKNOWN, unknown, line_number);
+}
+
+
+Token *classify_word(const char *lexeme) {
     int startIdx = 0;
 
     switch (lexeme[startIdx]) {
@@ -95,7 +183,6 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
                         return create_token(TOKEN_RESERVED_WORD, "CHARACTER", line_number); // "character"
                     }
                     break;
-
                 case 'o': 
                     switch (lexeme[startIdx + 2]) {
                         case 'n': 
@@ -107,7 +194,6 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
                                         return create_token(TOKEN_RESERVED_WORD, "CONSTANT", line_number); // "constant"
                                     }
                                     break;
-
                                 case 't': 
                                     if (lexeme[startIdx + 4] == 'i' && lexeme[startIdx + 5] == 'n' &&
                                         lexeme[startIdx + 6] == 'u' && lexeme[startIdx + 7] == 'e' &&
@@ -121,7 +207,6 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
                     break;
             }
             break;
-
         case 'd':
             switch (lexeme[startIdx + 1]) {
                 case 'o':
@@ -161,7 +246,6 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
                 break;
             }
             break;
-
         case 'f':
             switch (lexeme[startIdx + 1]) {
                 case 'o':
@@ -181,7 +265,6 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
                     break;
             }
             break;
-
         case 'i':
             switch (lexeme[startIdx + 1]) {
                 case 'f':
@@ -263,7 +346,6 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
                     break;
             }
             break;
-
         case 't':
             switch (lexeme[startIdx + 1]) {
                 case 'h':
@@ -291,7 +373,6 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
                     break;
             }
             break;
-
         case 'w':
             switch (lexeme[startIdx + 1]) {
                 case 'h':
@@ -305,57 +386,128 @@ Token *classify_keyword_or_identifier(const char *lexeme) {
         default: 
             break;
     }
-
     // If no keyword is matched, classify as an identifier
     return create_token(TOKEN_IDENTIFIER, lexeme, line_number);
     
 }
 
 
-// Classifier for operators
 Token *classify_operator(const char *source, int *index) {
-    char op = source[*index];
-    (*index)++;
+    char current = source[*index];
+    char next = source[*index + 1];
+    (*index)++; // Advance index for single-character operators by default
 
-    // Handle multi-character operators
-    if (op == '=' && source[*index] == '=') {
-        (*index)++;
-        return create_token(TOKEN_RELATIONAL_OPERATOR, "==", line_number);
-    } else if (op == '<' && source[*index] == '=') {
-        (*index)++;
-        return create_token(TOKEN_RELATIONAL_OPERATOR, "<=", line_number);
-    } else if (op == '>' && source[*index] == '=') {
-        (*index)++;
-        return create_token(TOKEN_RELATIONAL_OPERATOR, ">=", line_number);
-    } else if (op == '!' && source[*index] == '=') {
-        (*index)++;
-        return create_token(TOKEN_RELATIONAL_OPERATOR, "!=", line_number);
-    } else if (op == '&' && source[*index] == '&') {
-        (*index)++;
-        return create_token(TOKEN_LOGICAL_OPERATOR, "&&", line_number);
-    } else if (op == '|' && source[*index] == '|') {
-        (*index)++;
-        return create_token(TOKEN_LOGICAL_OPERATOR, "||", line_number);
+    switch (current) {
+        // Relational Operators
+        case '<':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_BOOLEAN_OPERATOR_RELATIONAL, "<=", line_number);
+            }
+            return create_token(TOKEN_BOOLEAN_OPERATOR_RELATIONAL, "<", line_number);
+
+        case '>':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_BOOLEAN_OPERATOR_RELATIONAL, ">=", line_number);
+            }
+            return create_token(TOKEN_BOOLEAN_OPERATOR_RELATIONAL, ">", line_number);
+
+        case '=':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_BOOLEAN_OPERATOR_RELATIONAL, "==", line_number);
+            }
+            return create_token(TOKEN_ASSIGNMENT_OPERATOR, "=", line_number);
+
+        case '!':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_BOOLEAN_OPERATOR_RELATIONAL, "!=", line_number);
+            }
+            return create_token(TOKEN_BOOLEAN_OPERATOR_LOGICAL, "!", line_number);
+
+        // Logical Operators
+        case '&':
+            if (next == '&') {
+                (*index)++;
+                return create_token(TOKEN_BOOLEAN_OPERATOR_LOGICAL, "&&", line_number);
+            }
+            break;
+
+        case '|':
+            if (next == '|') {
+                (*index)++;
+                return create_token(TOKEN_BOOLEAN_OPERATOR_LOGICAL, "||", line_number);
+            }
+            break;
+
+        // Arithmetic Operators and Unary Operators
+        case '+':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "+=", line_number);
+            }
+            if (next == '+') {
+                (*index)++;
+                return create_token(TOKEN_UNARY_OPERATOR, "++", line_number);
+            }
+            return create_token(TOKEN_ARITHMETIC_OPERATOR, "+", line_number);
+
+        case '-':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "-=", line_number);
+            }
+            if (next == '-') {
+                (*index)++;
+                return create_token(TOKEN_UNARY_OPERATOR, "--", line_number);
+            }
+            return create_token(TOKEN_ARITHMETIC_OPERATOR, "-", line_number);
+
+        case '*':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "*=", line_number);
+            }
+            return create_token(TOKEN_ARITHMETIC_OPERATOR, "*", line_number);
+
+        case '/':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "/=", line_number);
+            }
+            return create_token(TOKEN_ARITHMETIC_OPERATOR, "/", line_number);
+
+        case '$':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "$=", line_number);
+            }
+            return create_token(TOKEN_ARITHMETIC_OPERATOR, "$", line_number);
+
+        case '%':
+            if (next == '=') {
+                (*index)++;
+                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "%=", line_number);
+            }
+            return create_token(TOKEN_ARITHMETIC_OPERATOR, "%", line_number);
+
+        case '^':
+            return create_token(TOKEN_ARITHMETIC_OPERATOR, "^", line_number);
+
+        // Default case for unknown operators
+        default: {
+            char unknown[2] = {current, '\0'};
+            return create_token(TOKEN_UNKNOWN, unknown, line_number);
+        }
     }
 
-    // Single-character operators
-    switch (op) {
-        case '+': return create_token(TOKEN_ARITHMETIC_OPERATOR, "+", line_number);
-        case '-': return create_token(TOKEN_ARITHMETIC_OPERATOR, "-", line_number);
-        case '*': return create_token(TOKEN_ARITHMETIC_OPERATOR, "*", line_number);
-        case '/': return create_token(TOKEN_ARITHMETIC_OPERATOR, "/", line_number);
-        case '=': return create_token(TOKEN_ASSIGNMENT_OPERATOR, "=", line_number);
-        case '!': return create_token(TOKEN_UNARY_OPERATOR, "!", line_number);
-        case '<': return create_token(TOKEN_RELATIONAL_OPERATOR, "<", line_number);
-        case '>': return create_token(TOKEN_RELATIONAL_OPERATOR, ">", line_number);
-    }
-
-    // Default: Unknown operator
-    char unknown_op[2] = {op, '\0'};
-    return create_token(TOKEN_UNKNOWN, unknown_op, line_number);
+    // Return NULL for unrecognized multi-character sequences (safety fallback)
+    return NULL;
 }
 
-// Classifier for delimiters
+
 Token *classify_delimiter(char c, size_t line_number) {
     switch (c) {
         case ';': return create_token(TOKEN_DELIMITER, ";", line_number);
@@ -374,7 +526,6 @@ Token *classify_delimiter(char c, size_t line_number) {
 }
 
 
-// Tokenize source code into an array of tokens
 Token **tokenize(const char *source, size_t *token_count) {
     size_t capacity = 10;
     Token **tokens = malloc(capacity * sizeof(Token *));
@@ -394,9 +545,18 @@ Token **tokenize(const char *source, size_t *token_count) {
 
         Token *token = NULL;
 
+            if (source[index] == '~') {
+                Token *comment_token = classify_comment(source, &index);
+            if (comment_token) {
+                    tokens[*token_count] = comment_token;
+                    (*token_count)++;
+                    continue;
+                }
+        }
+
         // Numbers
         if (isdigit(c)) {
-            token = generate_number(source, &index);
+            token = classify_number(source, &index);
         }
         // Keywords or Identifiers
         else if (isalpha(c) || c == '_') {
@@ -407,10 +567,10 @@ Token **tokenize(const char *source, size_t *token_count) {
                 buffer[buffer_index++] = source[index++];
             }
 
-            token = classify_keyword_or_identifier(buffer); // Call the improved function
+            token = classify_word(buffer); // Call the improved function
         }
         // Operators
-        else if (strchr("+-*/=<>!&|", c)) {
+        else if (strchr("+-*/=$%^<>!&|", c)) {  // Include new operators ($, %, ^)
             token = classify_operator(source, &index);
         }
         // Delimiters
@@ -418,6 +578,10 @@ Token **tokenize(const char *source, size_t *token_count) {
             token = classify_delimiter(c, line_number);
             index++;  // Advance after handling delimiter
         }
+        else if (c == '"') { // Detect the start of a string
+            token = classify_string(source, &index);
+        }
+
         // Handle unrecognized characters
         else {
             fprintf(stderr, "Unrecognized character '%c' at line %zu\n", c, line_number);
@@ -441,7 +605,6 @@ Token **tokenize(const char *source, size_t *token_count) {
 }
 
 
-// Lexer function to read file and tokenize content
 Token **lexer(FILE *file, size_t *token_count) {
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
