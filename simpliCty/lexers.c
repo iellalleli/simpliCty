@@ -27,6 +27,7 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_CONST_INTEGER: return "INTEGER";
         case TOKEN_CONST_FLOAT: return "FLOAT";     
         case TOKEN_CONST_STRING: return "STRING";
+        case TOKEN_CONST_CHARACTER: return "CHARACTER";
         
         case TOKEN_ARITHMETIC_OPERATOR: return "ARITHMETIC_OPERATOR";
         case TOKEN_BOOLEAN_RELATIONAL_OPERATOR: return "BOOLEAN_RELATIONAL_OPERATOR";
@@ -35,10 +36,17 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_UNARY_OPERATOR: return "UNARY_OPERATOR";
         
         case TOKEN_DELIMITER: return "DELIMITER";
-        case TOKEN_BRACKET: return "BRACKET";
+        
+        case TOKEN_BRACKET_OPEN_PARENTHESIS:return "BRACKET_OPEN_PARENTHESIS";
+        case TOKEN_BRACKET_CLOSE_PARENTHESIS: return "BRACKET_CLOSE_PARENTHESIS";
+        case TOKEN_BRACKET_OPEN_BRACE: return "BRACKET_OPEN_BRACE";
+        case TOKEN_BRACKET_CLOSE_BRACE: return "BRACKET_CLOSE_BRACE";
+        case TOKEN_BRACKET_OPEN_BRACKET: return "BRACKET_OPEN_BRACKET";
+        case TOKEN_BRACKET_CLOSE_BRACKET: return "BRACKET_CLOSE_BRACKET";
 
         case TOKEN_COMMENT: return "COMMENT";
         case TOKEN_UNKNOWN: return "UNKNOWN";
+        case TOKEN_INVALID: return "INVALID";
         case TOKEN_EOF: return "EOF";
         default: return "UNDEFINED";
     }
@@ -110,6 +118,39 @@ Token *classify_string(const char *source, int *index) {
 }
 
 
+Token *classify_character(const char *source, int *index) {
+    // Ensure the first character is a single quote
+    if (source[*index] != '\'') {
+        fprintf(stderr, "Error: Expected single quote at line %zu\n", line_number);
+        return NULL;
+    }
+
+    (*index)++; // Move past the opening single quote
+
+    char character = source[*index];
+
+    // Validate that the character is not another single quote (to avoid empty or invalid characters)
+    if (character == '\0' || character == '\'') {
+        fprintf(stderr, "Error: Invalid or empty character at line %zu\n", line_number);
+        return NULL;
+    }
+
+    (*index)++; // Move past the character
+
+    // Ensure the next character is a closing single quote
+    if (source[*index] != '\'') {
+        fprintf(stderr, "Error: Expected closing single quote at line %zu\n", line_number);
+        return NULL;
+    }
+
+    (*index)++; // Move past the closing single quote
+
+    // Convert the character to a string and return it as a token
+    char buffer[2] = {character, '\0'};
+    return create_token(TOKEN_CONST_CHARACTER, buffer, line_number);
+}
+
+
 Token *classify_comment(const char *source, int *index) {
     char buffer[256] = {0};  // Buffer to hold the comment content
     int buffer_index = 0;
@@ -162,17 +203,16 @@ Token *classify_word(const char *lexeme) {
 
     switch (lexeme[startIdx]) {
         case 'b':
-            switch (lexeme[startIdx] + 1) {
+            switch (lexeme[startIdx + 1]) {
                 case 'r':
-                    if (lexeme[startIdx + 2] == 'r' && lexeme[startIdx + 3] == 'e' && lexeme[startIdx + 4] == 'a' && 
-                    lexeme[startIdx + 5] == 'k' && lexeme[startIdx + 6] == '\0') {
+                    if (lexeme[startIdx + 2] == 'e' && lexeme[startIdx + 3] == 'a' && lexeme[startIdx + 4] == 'k' && 
+                    lexeme[startIdx + 5] == '\0') {
                         return create_token(TOKEN_KEYWORD, "BREAK", line_number); // "break"
                     }
                     break;
                 case 'o':
-                    if (lexeme[startIdx + 2] == 'o' && lexeme[startIdx + 3] == 'o' && lexeme[startIdx + 4] == 'l' && 
-                    lexeme[startIdx + 5] == 'e' && lexeme[startIdx + 6] == 'a' && lexeme[startIdx + 6] == 'n' && 
-                    lexeme[startIdx + 6] == '\0') {
+                    if (lexeme[startIdx + 2] == 'o' && lexeme[startIdx + 3] == 'l' && lexeme[startIdx + 4] == 'e' && 
+                    lexeme[startIdx + 5] == 'a' && lexeme[startIdx + 6] == 'n' && lexeme[startIdx + 7] == '\0') {
                         return create_token(TOKEN_RESERVED_WORD, "BOOLEAN", line_number); // "boolean"
                     }
                     break;
@@ -518,12 +558,20 @@ Token *classify_delimiter(char c, size_t line_number) {
     switch (c) {
         case ';': return create_token(TOKEN_DELIMITER, ";", line_number);
         case ',': return create_token(TOKEN_DELIMITER, ",", line_number);
-        case '(': return create_token(TOKEN_DELIMITER, "(", line_number);
-        case ')': return create_token(TOKEN_DELIMITER, ")", line_number);
-        case '{': return create_token(TOKEN_DELIMITER, "{", line_number);
-        case '}': return create_token(TOKEN_DELIMITER, "}", line_number);
-        case '[': return create_token(TOKEN_DELIMITER, "[", line_number);
-        case ']': return create_token(TOKEN_DELIMITER, "]", line_number);
+
+        // Parentheses
+        case '(': return create_token(TOKEN_BRACKET_OPEN_PARENTHESIS, "(", line_number);
+        case ')': return create_token(TOKEN_BRACKET_CLOSE_PARENTHESIS, ")", line_number);
+
+        // Braces
+        case '{': return create_token(TOKEN_BRACKET_OPEN_BRACE, "{", line_number);
+        case '}': return create_token(TOKEN_BRACKET_CLOSE_BRACE, "}", line_number);
+
+        // Brackets
+        case '[': return create_token(TOKEN_BRACKET_OPEN_BRACKET, "[", line_number);
+        case ']': return create_token(TOKEN_BRACKET_CLOSE_BRACKET, "]", line_number);
+
+        // Default case for unknown delimiters
         default: {
             char unknown[2] = {c, '\0'};
             return create_token(TOKEN_UNKNOWN, unknown, line_number);
@@ -587,7 +635,9 @@ Token **tokenize(const char *source, size_t *token_count) {
         else if (c == '"') { // Detect the start of a string
             token = classify_string(source, &index);
         }
-
+        else if (source[index] == '\'') { // Detect the start of a character
+            token = classify_character(source, &index);
+        }
         // Handle unrecognized characters
         else {
             fprintf(stderr, "Unrecognized character '%c' at line %zu\n", c, line_number);
@@ -609,7 +659,6 @@ Token **tokenize(const char *source, size_t *token_count) {
     tokens[*token_count] = create_token(TOKEN_EOF, "EOF", line_number);
     return tokens;
 }
-
 
 Token **lexer(FILE *file, size_t *token_count) {
     fseek(file, 0, SEEK_END);

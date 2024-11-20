@@ -3,6 +3,8 @@
 Multi-line
 comment
 ^~
+boolean valid = true;
+break even;
 integer x = 123;
 float y = 45.67;
 string name = "John";
