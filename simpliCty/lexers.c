@@ -36,7 +36,6 @@ const char* token_type_to_string(TokenType type) {
         case TOKEN_UNARY_OPERATOR: return "UNARY_OPERATOR";
         
         case TOKEN_DELIMITER: return "DELIMITER";
-        
         case TOKEN_BRACKET_OPEN_PARENTHESIS:return "BRACKET_OPEN_PARENTHESIS";
         case TOKEN_BRACKET_CLOSE_PARENTHESIS: return "BRACKET_CLOSE_PARENTHESIS";
         case TOKEN_BRACKET_OPEN_BRACE: return "BRACKET_OPEN_BRACE";
@@ -54,7 +53,7 @@ const char* token_type_to_string(TokenType type) {
 
 
 void print_token(const Token *token) {
-    printf("TOKEN: %s | TYPE: %s | LINE: %zu\n", 
+    printf("TOKEN: %-20s TYPE: %-30s LINE: %zu\n", 
            token->value, 
            token_type_to_string(token->type), 
            token->line_num);
@@ -96,6 +95,7 @@ Token *classify_number(const char *source, int *index) {
 
     // Determines if the number of decimals is invalid or has letters
     if (has_decimal > 1 || is_flagged){
+        fprintf(stderr, "Error: Invalid token '%s' at line %zu\n", buffer, line_number);
         return create_token(TOKEN_INVALID, buffer, line_number);
     }
 
@@ -122,7 +122,7 @@ Token *classify_string(const char *source, int *index) {
     if (source[*index] == '"') {
         (*index)++; // Skip the closing quote
     } else {
-        fprintf(stderr, "Unterminated string at line %zu\n", line_number);
+        fprintf(stderr, "Error: Unterminated string at line %zu\n", line_number);
     }
 
     return create_token(TOKEN_CONST_STRING, buffer, line_number);
@@ -173,7 +173,6 @@ Token *classify_comment(const char *source, int *index) {
         while (source[*index] != '\n' && source[*index] != '\0') {
             buffer[buffer_index++] = source[(*index)++];
         }
-        printf("TOKEN: %s", buffer);
         return create_token(TOKEN_COMMENT, buffer, line_number);  // single-line comment
     }
 
@@ -182,6 +181,7 @@ Token *classify_comment(const char *source, int *index) {
         *index += 2;  // Skip the `~^`
         while (!(source[*index] == '^' && source[*index + 1] == '~') && source[*index] != '\0') {
             if (source[*index] == '\n') {
+                printf("sample\n");
                 line_number++;  // Increment the line number for each new line
                 buffer[buffer_index++] = ' ';  // Add a space instead of a newline
             } else {
@@ -620,8 +620,12 @@ Token **tokenize(const char *source, size_t *token_count) {
                 }
         }
 
+        // Comments
+        if (source[index] == '~') {
+            token = classify_comment(source, &index);
+        }
         // Numbers
-        if (isdigit(c)) {
+        else if (isdigit(c)) {
             token = classify_number(source, &index);
         }
         // Keywords or Identifiers
@@ -632,9 +636,9 @@ Token **tokenize(const char *source, size_t *token_count) {
 
             while (isalnum(source[index]) || ispunct(source[index])) {
                 if (source[index] == '_'){
-                } else if (strchr("@#.", source[index])) {
+                } else if (strchr("@#.`", source[index])) {
                     is_flagged++;
-                } else if (ispunct(source[index]) && !strchr("@#.", source[index])) {
+                } else if (ispunct(source[index]) && !strchr("@#.`", source[index])) {
                     break;
                 }
                                 
@@ -642,6 +646,7 @@ Token **tokenize(const char *source, size_t *token_count) {
             }
 
             if (is_flagged){
+                fprintf(stderr, "Error: Invalid token '%s' at line %zu\n", buffer, line_number);
                 token = create_token(TOKEN_INVALID, buffer, line_number);
             
             } else {
@@ -666,7 +671,7 @@ Token **tokenize(const char *source, size_t *token_count) {
         // Handle unrecognized characters
         else if (ispunct(source[index])) {
             token = classify_operator(source, &index);
-            fprintf(stderr, "Unrecognized character '%c' at line %zu\n", c, line_number);
+            fprintf(stderr, "Error: Unrecognized character '%c' at line %zu\n", c, line_number);
         }
 
         // Store token

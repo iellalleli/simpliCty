@@ -1,0 +1,6 @@
+~~ This is a single-line comment.
+~~Another single-line comment without space.
+~^
+This is a multi-line comment.
+It spans multiple lines and contains special characters like @#$%^&*().
+^~

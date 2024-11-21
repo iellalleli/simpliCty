@@ -3,7 +3,7 @@
 
 - Constants (need to identify integers, floats, strings, chars. Ex. 10, 10.23, "hello" (ignores " and takes the value inside them), 'a') DONE but need to handle cases for "hello"" where there is a missing right parenthesis
 
-- Clean up
+- Clean up and unary if kaya pa ng time
 
 
 # HOW TO RUN

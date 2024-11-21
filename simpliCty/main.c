@@ -68,7 +68,7 @@ void check_file_type(const char* filename, const char* expectedExtension){
     
     // Check if filename has an invalid extension
     if(dot == NULL || strcmp(dot, expectedExtension) != 0){
-        fprintf(stderr, "Error: unexpected file type: %s\n\n", filename);
+        fprintf(stderr, "Error: unexpected file type: %s\nExpected file type: <filename.cty>\n", filename);
         exit(1);
     }
 }
