@@ -196,17 +196,16 @@ Token *classify_word(const char *lexeme) {
 
     switch (lexeme[startIdx]) {
         case 'b':
-            switch (lexeme[startIdx] + 1) {
+            switch (lexeme[startIdx + 1]) {
                 case 'r':
-                    if (lexeme[startIdx + 2] == 'r' && lexeme[startIdx + 3] == 'e' && lexeme[startIdx + 4] == 'a' && 
-                    lexeme[startIdx + 5] == 'k' && lexeme[startIdx + 6] == '\0') {
+                    if (lexeme[startIdx + 2] == 'e' && lexeme[startIdx + 3] == 'a' && lexeme[startIdx + 4] == 'k' && 
+                    lexeme[startIdx + 5] == '\0') {
                         return create_token(TOKEN_KEYWORD, "BREAK", line_number); // "break"
                     }
                     break;
                 case 'o':
-                    if (lexeme[startIdx + 2] == 'o' && lexeme[startIdx + 3] == 'o' && lexeme[startIdx + 4] == 'l' && 
-                    lexeme[startIdx + 5] == 'e' && lexeme[startIdx + 6] == 'a' && lexeme[startIdx + 6] == 'n' && 
-                    lexeme[startIdx + 6] == '\0') {
+                    if (lexeme[startIdx + 2] == 'o' && lexeme[startIdx + 3] == 'l' && lexeme[startIdx + 4] == 'e' && 
+                    lexeme[startIdx + 5] == 'a' && lexeme[startIdx + 6] == 'n' && lexeme[startIdx + 7] == '\0') {
                         return create_token(TOKEN_RESERVED_WORD, "BOOLEAN", line_number); // "boolean"
                     }
                     break;
