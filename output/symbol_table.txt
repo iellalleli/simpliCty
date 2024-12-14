@@ -1,109 +1,79 @@
-TOKEN: MAIN                 TYPE: KEYWORD                        LINE: 1
-TOKEN: {                    TYPE: BRACKET_OPEN_BRACE             LINE: 1
-TOKEN: INTEGER              TYPE: RESERVED-WORD                  LINE: 2
-TOKEN: x                    TYPE: IDENTIFIER                     LINE: 2
-TOKEN: =                    TYPE: ASSIGNMENT_OPERATOR            LINE: 2
-TOKEN: 10                   TYPE: INTEGER                        LINE: 2
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 2
-TOKEN: FLOAT                TYPE: RESERVED-WORD                  LINE: 3
-TOKEN: y                    TYPE: IDENTIFIER                     LINE: 3
-TOKEN: =                    TYPE: ASSIGNMENT_OPERATOR            LINE: 3
-TOKEN: 5.5                  TYPE: FLOAT                          LINE: 3
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 3
-TOKEN: STRING               TYPE: RESERVED-WORD                  LINE: 4
-TOKEN: message              TYPE: IDENTIFIER                     LINE: 4
-TOKEN: =                    TYPE: ASSIGNMENT_OPERATOR            LINE: 4
-TOKEN: Hello, simpliCty!    TYPE: STRING                         LINE: 4
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 4
-TOKEN: IF                   TYPE: KEYWORD                        LINE: 6
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 6
-TOKEN: x                    TYPE: IDENTIFIER                     LINE: 6
-TOKEN: >                    TYPE: BOOLEAN_RELATIONAL_OPERATOR    LINE: 6
-TOKEN: 5                    TYPE: INTEGER                        LINE: 6
-TOKEN: &&                   TYPE: BOOLEAN_LOGICAL_OPERATOR       LINE: 6
-TOKEN: y                    TYPE: IDENTIFIER                     LINE: 6
-TOKEN: <=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR    LINE: 6
-TOKEN: 10                   TYPE: INTEGER                        LINE: 6
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 6
-TOKEN: THEN                 TYPE: NOISE_WORD                     LINE: 6
-TOKEN: DISPLAY              TYPE: KEYWORD                        LINE: 7
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 7
-TOKEN: Condition is true    TYPE: STRING                         LINE: 7
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 7
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 7
-TOKEN: END                  TYPE: NOISE_WORD                     LINE: 8
-TOKEN: FOR                  TYPE: KEYWORD                        LINE: 10
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 10
-TOKEN: INTEGER              TYPE: RESERVED-WORD                  LINE: 10
-TOKEN: i                    TYPE: IDENTIFIER                     LINE: 10
-TOKEN: =                    TYPE: ASSIGNMENT_OPERATOR            LINE: 10
-TOKEN: 0                    TYPE: INTEGER                        LINE: 10
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 10
-TOKEN: i                    TYPE: IDENTIFIER                     LINE: 10
-TOKEN: <                    TYPE: BOOLEAN_RELATIONAL_OPERATOR    LINE: 10
-TOKEN: 5                    TYPE: INTEGER                        LINE: 10
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 10
-TOKEN: i                    TYPE: IDENTIFIER                     LINE: 10
-TOKEN: ++                   TYPE: UNARY_OPERATOR                 LINE: 10
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 10
-TOKEN: {                    TYPE: BRACKET_OPEN_BRACE             LINE: 10
-TOKEN: DISPLAY              TYPE: KEYWORD                        LINE: 11
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 11
-TOKEN: Iteration:           TYPE: STRING                         LINE: 11
-TOKEN: ,                    TYPE: DELIMITER                      LINE: 11
-TOKEN: i                    TYPE: IDENTIFIER                     LINE: 11
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 11
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 11
-TOKEN: }                    TYPE: BRACKET_CLOSE_BRACE            LINE: 12
-TOKEN: DO                   TYPE: NOISE_WORD                     LINE: 14
-TOKEN: INPUT                TYPE: KEYWORD                        LINE: 15
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 15
-TOKEN: Enter your age:      TYPE: STRING                         LINE: 15
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 15
-TOKEN: LET                  TYPE: NOISE_WORD                     LINE: 15
-TOKEN: age                  TYPE: IDENTIFIER                     LINE: 15
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 15
-TOKEN: IF                   TYPE: KEYWORD                        LINE: 16
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 16
-TOKEN: age                  TYPE: IDENTIFIER                     LINE: 16
-TOKEN: >=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR    LINE: 16
-TOKEN: 18                   TYPE: INTEGER                        LINE: 16
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 16
-TOKEN: THEN                 TYPE: NOISE_WORD                     LINE: 16
-TOKEN: DISPLAY              TYPE: KEYWORD                        LINE: 17
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 17
-TOKEN: Adult                TYPE: STRING                         LINE: 17
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 17
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 17
-TOKEN: ELSE                 TYPE: KEYWORD                        LINE: 18
-TOKEN: DISPLAY              TYPE: KEYWORD                        LINE: 19
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 19
-TOKEN: Minor                TYPE: STRING                         LINE: 19
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 19
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 19
-TOKEN: END                  TYPE: NOISE_WORD                     LINE: 20
-TOKEN: WHILE                TYPE: KEYWORD                        LINE: 21
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS       LINE: 21
-TOKEN: age                  TYPE: IDENTIFIER                     LINE: 21
-TOKEN: !=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR    LINE: 21
-TOKEN: 0                    TYPE: INTEGER                        LINE: 21
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS      LINE: 21
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 21
-TOKEN:  This is a multi-line comment.        It describes the logic of the program.  TYPE: COMMENT                        LINE: 23
-TOKEN: x                    TYPE: IDENTIFIER                     LINE: 26
-TOKEN: =                    TYPE: ASSIGNMENT_OPERATOR            LINE: 26
-TOKEN: x                    TYPE: IDENTIFIER                     LINE: 26
-TOKEN: +                    TYPE: ARITHMETIC_OPERATOR            LINE: 26
-TOKEN: 5                    TYPE: INTEGER                        LINE: 26
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 26
-TOKEN: y                    TYPE: IDENTIFIER                     LINE: 27
-TOKEN: $=                   TYPE: ASSIGNMENT_OPERATOR            LINE: 27
-TOKEN: 2.5                  TYPE: FLOAT                          LINE: 27
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 27
-TOKEN: BOOLEAN              TYPE: RESERVED-WORD                  LINE: 28
-TOKEN: isDone               TYPE: IDENTIFIER                     LINE: 28
-TOKEN: =                    TYPE: ASSIGNMENT_OPERATOR            LINE: 28
-TOKEN: FALSE                TYPE: RESERVED-WORD                  LINE: 28
-TOKEN: ;                    TYPE: DELIMITER                      LINE: 28
-TOKEN: END                  TYPE: NOISE_WORD                     LINE: 30
-TOKEN: }                    TYPE: BRACKET_CLOSE_BRACE            LINE: 31
+TOKEN:  identifiers         TYPE: COMMENT                       
+TOKEN: intNum               TYPE: IDENTIFIER                    
+TOKEN: _arr_size            TYPE: IDENTIFIER                    
+TOKEN:  keywords            TYPE: COMMENT                       
+TOKEN: BREAK                TYPE: KEYWORD                       
+TOKEN: CONTINUE             TYPE: KEYWORD                       
+TOKEN: DEFAULT              TYPE: KEYWORD                       
+TOKEN: DISPLAY              TYPE: KEYWORD                       
+TOKEN: ELSE                 TYPE: KEYWORD                       
+TOKEN: FOR                  TYPE: KEYWORD                       
+TOKEN: IF                   TYPE: KEYWORD                       
+TOKEN: INPUT                TYPE: KEYWORD                       
+TOKEN: MAIN                 TYPE: KEYWORD                       
+TOKEN: RETURN               TYPE: KEYWORD                       
+TOKEN: WHILE                TYPE: KEYWORD                       
+TOKEN:  reserved words      TYPE: COMMENT                       
+TOKEN: BOOLEAN              TYPE: RESERVED-WORD                 
+TOKEN: CHARACTER            TYPE: RESERVED-WORD                 
+TOKEN: CONSTANT             TYPE: RESERVED-WORD                 
+TOKEN: FALSE                TYPE: BOOLEAN                       
+TOKEN: FLOAT                TYPE: RESERVED-WORD                 
+TOKEN: INTEGER              TYPE: RESERVED-WORD                 
+TOKEN: NULL                 TYPE: RESERVED-WORD                 
+TOKEN: STRING               TYPE: RESERVED-WORD                 
+TOKEN: TRUE                 TYPE: BOOLEAN                       
+TOKEN: VOID                 TYPE: RESERVED-WORD                 
+TOKEN:  noise words         TYPE: COMMENT                       
+TOKEN: DO                   TYPE: NOISE_WORD                    
+TOKEN: END                  TYPE: NOISE_WORD                    
+TOKEN: LET                  TYPE: NOISE_WORD                    
+TOKEN: THEN                 TYPE: NOISE_WORD                    
+TOKEN:  constants           TYPE: COMMENT                       
+TOKEN: 1020                 TYPE: INTEGER                       
+TOKEN: 3.14                 TYPE: FLOAT                         
+TOKEN: TRUE                 TYPE: BOOLEAN                       
+TOKEN: FALSE                TYPE: BOOLEAN                       
+TOKEN: c                    TYPE: CHARACTER                     
+TOKEN: hello                TYPE: INVALID                       
+TOKEN: word                 TYPE: STRING                        
+TOKEN:  operators           TYPE: COMMENT                       
+TOKEN: arithmetic           TYPE: IDENTIFIER                    
+TOKEN: +                    TYPE: ARITHMETIC_OPERATOR           
+TOKEN: -                    TYPE: ARITHMETIC_OPERATOR           
+TOKEN: *                    TYPE: ARITHMETIC_OPERATOR           
+TOKEN: /                    TYPE: ARITHMETIC_OPERATOR           
+TOKEN: $                    TYPE: ARITHMETIC_OPERATOR           
+TOKEN: %                    TYPE: ARITHMETIC_OPERATOR           
+TOKEN: ^                    TYPE: ARITHMETIC_OPERATOR           
+TOKEN: relational           TYPE: IDENTIFIER                    
+TOKEN: <                    TYPE: BOOLEAN_RELATIONAL_OPERATOR   
+TOKEN: >                    TYPE: BOOLEAN_RELATIONAL_OPERATOR   
+TOKEN: <=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR   
+TOKEN: >=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR   
+TOKEN: ==                   TYPE: BOOLEAN_RELATIONAL_OPERATOR   
+TOKEN: !=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR   
+TOKEN: logical              TYPE: IDENTIFIER                    
+TOKEN: &&                   TYPE: BOOLEAN_LOGICAL_OPERATOR      
+TOKEN: ||                   TYPE: BOOLEAN_LOGICAL_OPERATOR      
+TOKEN: !                    TYPE: BOOLEAN_LOGICAL_OPERATOR      
+TOKEN: unary                TYPE: IDENTIFIER                    
+TOKEN: --                   TYPE: UNARY_OPERATOR                
+TOKEN: ++                   TYPE: UNARY_OPERATOR                
+TOKEN:  delimiters          TYPE: COMMENT                       
+TOKEN: ,                    TYPE: DELIMITER                     
+TOKEN: ;                    TYPE: DELIMITER                     
+TOKEN:  brackets            TYPE: COMMENT                       
+TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS      
+TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS     
+TOKEN: {                    TYPE: BRACKET_OPEN_BRACE            
+TOKEN: }                    TYPE: BRACKET_CLOSE_BRACE           
+TOKEN: [                    TYPE: BRACKET_OPEN_BRACKET          
+TOKEN: ]                    TYPE: BRACKET_CLOSE_BRACKET         
+TOKEN: sample               TYPE: IDENTIFIER                    
+TOKEN:  comments            TYPE: COMMENT                       
+TOKEN:  This is a multi-line comment. It spans multiple lines and contains special characters like @#$%^&*().  TYPE: COMMENT                       
+TOKEN:  invalids            TYPE: COMMENT                       
+TOKEN: 143iloveu            TYPE: INVALID                       
+TOKEN: set``loop            TYPE: INVALID                       
+TOKEN: try?                 TYPE: INVALID                       

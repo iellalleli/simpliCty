@@ -6,7 +6,6 @@
 
 size_t line_number = 1;        // Global line number
 
-
 Token *create_token(TokenType type, const char *value, size_t line_num) {
     Token *token = (Token *)malloc(sizeof(Token));
     token->type = type;
@@ -14,7 +13,6 @@ Token *create_token(TokenType type, const char *value, size_t line_num) {
     token->line_num = line_num;
     return token;
 }
-
 
 const char* token_type_to_string(TokenType type) {
     switch (type) {
@@ -26,6 +24,7 @@ const char* token_type_to_string(TokenType type) {
         
         case TOKEN_CONST_INTEGER: return "INTEGER";
         case TOKEN_CONST_FLOAT: return "FLOAT";     
+        case TOKEN_CONST_BOOLEAN: return "BOOLEAN";     
         case TOKEN_CONST_STRING: return "STRING";
         case TOKEN_CONST_CHARACTER: return "CHARACTER";
         
@@ -51,28 +50,22 @@ const char* token_type_to_string(TokenType type) {
     }
 }
 
-
 void print_token(const Token *token) {
-    printf("TOKEN: %-20s TYPE: %-30s LINE: %zu\n", 
+    printf("TOKEN: %-20s TYPE: %-30s\n", 
            token->value, 
-           token_type_to_string(token->type), 
-           token->line_num);
+           token_type_to_string(token->type));
 }
-
 
 void write_to_symbol_table(const Token *token, FILE *symbol_table_file) {
-    fprintf(symbol_table_file, "TOKEN: %-20s TYPE: %-30s LINE: %zu\n", 
+    fprintf(symbol_table_file, "TOKEN: %-20s TYPE: %-30s\n", 
             token->value, 
-            token_type_to_string(token->type), 
-            token->line_num);
+            token_type_to_string(token->type));
 }
-
 
 void free_token(Token *token) {
     if (token->value) free(token->value);
     free(token);
 }
-
 
 Token *classify_number(const char *source, int *index) {
     char buffer[64] = {0};
@@ -80,7 +73,7 @@ Token *classify_number(const char *source, int *index) {
     int has_decimal = 0;
     int is_flagged = 0;
 
-    // Extract the number, allowing one decimal point
+    // Append numbers with one decimal point
     while (isdigit(source[*index]) || (source[*index] == '.') || (isalpha(source[*index]) || ispunct(source[*index]))) {
         if (source[*index] == '.') {
             has_decimal++;
@@ -114,13 +107,13 @@ Token *classify_string(const char *source, int *index) {
 
     while (source[*index] != '"' && source[*index] != '\0') {
         if (source[*index] == '\n') {
-            line_number++; // Handle multi-line strings, if allowed
+            line_number++; 
         }
         buffer[buffer_index++] = source[(*index)++];
     }
 
     if (source[*index] == '"') {
-        (*index)++; // Skip the closing quote
+        (*index)++; // Skip
     } else {
         fprintf(stderr, "Error: Unterminated string at line %zu\n", line_number);
     }
@@ -130,42 +123,50 @@ Token *classify_string(const char *source, int *index) {
 
 
 Token *classify_character(const char *source, int *index) {
-    // Ensure the first character is a single quote
-    if (source[*index] != '\'') {
-        fprintf(stderr, "Error: Expected single quote at line %zu\n", line_number);
-        return NULL;
-    }
+    (*index)++; // Skip apostrophe
+    char c = source[*index];
 
-    (*index)++; // Move past the opening single quote
-
-    char character = source[*index];
-
-    // Validate that the character is not another single quote (to avoid empty or invalid characters)
-    if (character == '\0' || character == '\'') {
+    // Checks if character is empty 
+    if (c == '\0' || c == '\'') {
         fprintf(stderr, "Error: Invalid or empty character at line %zu\n", line_number);
         return NULL;
     }
 
-    (*index)++; // Move past the character
+    (*index)++;
 
-    // Ensure the next character is a closing single quote
+    // Check if there's more than one character inside apostrophe
     if (source[*index] != '\'') {
-        fprintf(stderr, "Error: Expected closing single quote at line %zu\n", line_number);
-        return NULL;
+        char buffer[50];
+        int buffer_index = 0;
+        (*index)--; // Move back one character
+
+        fprintf(stderr, "Error: Too many characters in character constant at line %zu\n", line_number);
+
+        // Appends characters to buffer
+        while (source[*index] != '\'' && source[*index] != '\0') {
+            buffer[buffer_index] = source[*index];
+            (*index)++;
+            buffer_index++;
+        }
+
+        if (source[*index] == '\'') { // Skip apostrophe
+            (*index)++;
+        }
+
+        return create_token(TOKEN_INVALID, buffer, line_number);
     }
 
-    (*index)++; // Move past the closing single quote
+    (*index)++;
 
-    // Convert the character to a string and return it as a token
-    char buffer[2] = {character, '\0'};
+    char buffer[2] = {c, '\0'};
     return create_token(TOKEN_CONST_CHARACTER, buffer, line_number);
 }
 
 
 Token *classify_comment(const char *source, int *index) {
-    char buffer[256] = {0};  // Buffer to hold the comment content
+    char buffer[256] = {0}; 
     int buffer_index = 0;
-    size_t start_line = line_number;  // Track start line of the comment
+    size_t start_line = line_number;  
 
     // Single-line comment: starts with `~~`
     if (source[*index] == '~' && source[*index + 1] == '~') {
@@ -181,7 +182,6 @@ Token *classify_comment(const char *source, int *index) {
         *index += 2;  // Skip the `~^`
         while (!(source[*index] == '^' && source[*index + 1] == '~') && source[*index] != '\0') {
             if (source[*index] == '\n') {
-                printf("sample\n");
                 line_number++;  // Increment the line number for each new line
                 buffer[buffer_index++] = ' ';  // Add a space instead of a newline
             } else {
@@ -201,12 +201,6 @@ Token *classify_comment(const char *source, int *index) {
     }
 
     return NULL;  // Not a comment
-}
-
-
-Token *classify_unknown(char c) {
-    char unknown[2] = {c, '\0'};
-    return create_token(TOKEN_UNKNOWN, unknown, line_number);
 }
 
 
@@ -318,7 +312,7 @@ Token *classify_word(const char *lexeme) {
                     break;
                 case 'a':
                     if (lexeme[startIdx + 2] == 'l' && lexeme[startIdx + 3] == 's' && lexeme[startIdx + 4] == 'e' && lexeme[startIdx + 5] == '\0') {
-                        return create_token(TOKEN_RESERVED_WORD, "FALSE", line_number); // "false"
+                        return create_token(TOKEN_CONST_BOOLEAN, "FALSE", line_number); // "false"
                     }
                     break;
             }
@@ -415,7 +409,7 @@ Token *classify_word(const char *lexeme) {
                 case 'r':
                     if (lexeme[startIdx + 2] == 'u' && lexeme[startIdx + 3] == 'e' &&
                         lexeme[startIdx + 4] == '\0') {
-                            return create_token(TOKEN_RESERVED_WORD, "TRUE", line_number); // "true"
+                            return create_token(TOKEN_CONST_BOOLEAN, "TRUE", line_number); // "true"
                     }
                     break;
             }
@@ -446,14 +440,13 @@ Token *classify_word(const char *lexeme) {
     }
     // If no keyword is matched, classify as an identifier
     return create_token(TOKEN_IDENTIFIER, lexeme, line_number);
-    
 }
 
 
 Token *classify_operator(const char *source, int *index) {
     char current = source[*index];
     char next = source[*index + 1];
-    (*index)++; // Advance index for single-character operators by default
+    (*index)++;
 
     switch (current) {
         // Relational Operators
@@ -561,7 +554,6 @@ Token *classify_operator(const char *source, int *index) {
         }
     }
 
-    // Return NULL for unrecognized multi-character sequences (safety fallback)
     return NULL;
 }
 
@@ -611,15 +603,6 @@ Token **tokenize(const char *source, size_t *token_count) {
 
         Token *token = NULL;
 
-            if (source[index] == '~') {
-                Token *comment_token = classify_comment(source, &index);
-            if (comment_token) {
-                    tokens[*token_count] = comment_token;
-                    (*token_count)++;
-                    continue;
-                }
-        }
-
         // Comments
         if (source[index] == '~') {
             token = classify_comment(source, &index);
@@ -636,9 +619,9 @@ Token **tokenize(const char *source, size_t *token_count) {
 
             while (isalnum(source[index]) || ispunct(source[index])) {
                 if (source[index] == '_'){
-                } else if (strchr("@#.`", source[index])) {
+                } else if (strchr("@#.`?", source[index])) {
                     is_flagged++;
-                } else if (ispunct(source[index]) && !strchr("@#.`", source[index])) {
+                } else if (ispunct(source[index]) && !strchr("@#.`?", source[index])) {
                     break;
                 }
                                 
@@ -650,17 +633,17 @@ Token **tokenize(const char *source, size_t *token_count) {
                 token = create_token(TOKEN_INVALID, buffer, line_number);
             
             } else {
-                token = classify_word(buffer); // Call the improved function
+                token = classify_word(buffer); // Classify if string is keyword, reserved word, or noise word
             }
         }
         // Operators
-        else if (strchr("+-*/=$%^<>!&", c)) {  // Include new operators ($, %, ^)
+        else if (strchr("+-*/=$%^<>!&|", c)) { 
             token = classify_operator(source, &index);
         }
         // Delimiters
         else if (strchr(";{},()[]", c)) {
             token = classify_delimiter(c, line_number);
-            index++;  // Advance after handling delimiter
+            index++; 
         }
         else if (c == '"') { // Detect the start of a string
             token = classify_string(source, &index);
@@ -684,8 +667,6 @@ Token **tokenize(const char *source, size_t *token_count) {
         }
     }
 
-    // Add END_OF_TOKENS marker
-    tokens[*token_count] = create_token(TOKEN_EOF, "EOF", line_number);
     return tokens;
 }
 

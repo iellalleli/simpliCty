@@ -1,0 +1,66 @@
+~~ identifiers
+intNum
+_arr_size
+
+~~ keywords
+break
+continue
+default
+display
+else
+for
+if
+input
+main
+return
+while
+
+~~ reserved words
+boolean
+character
+constant
+false
+float
+integer
+null
+string
+true
+void
+
+~~ noise words
+do
+end
+let
+then
+
+~~ constants
+1020
+3.14
+true
+false
+'c'
+'hello'
+"word"
+
+~~ operators
+arithmetic + - * / $ % ^
+relational < > <= >= == !=
+logical && || !
+unary -- ++
+
+~~ delimiters
+, ;
+
+~~ brackets
+() {} []
+
+sample ~~ comments
+~^
+This is a multi-line comment.
+It spans multiple lines and contains special characters like @#$%^&*().
+^~
+
+~~ invalids
+143iloveu
+set``loop
+try?

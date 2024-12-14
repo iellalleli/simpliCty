@@ -4,7 +4,7 @@
 
 #include "lexers.h"
 
-#define VALID_EXTENSION ".cty"
+const char* VALID_EXTENSION = ".cty";
 void check_file_type(const char* filename, const char* expectedExtension);
 
 int main(int argc, char *argv[]) {
@@ -15,14 +15,14 @@ int main(int argc, char *argv[]) {
 
     check_file_type(argv[1], VALID_EXTENSION);
 
-    // Open the .cty file provided as a command-line argument
+    // Open the .cty file
     FILE *file = fopen(argv[1], "r");
     if (!file) {
         printf("ERROR: File not found\n");
         exit(1);
     }
 
-    // Open the output file for the symbol table
+    // Open/Create the output file for the symbol table
     FILE *symbol_table = fopen("output/symbol_table.txt", "w");
     if (!symbol_table) {
         printf("ERROR: Unable to create the output file\n");
@@ -63,7 +63,6 @@ int main(int argc, char *argv[]) {
 
 // Only files with .cty extensions are accepted
 void check_file_type(const char* filename, const char* expectedExtension){
-    // Get pointer to the dot position at the end of the filename
     const char *dot = strrchr(filename, '.');
     
     // Check if filename has an invalid extension

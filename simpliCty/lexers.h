@@ -13,9 +13,9 @@ typedef enum {
 
     TOKEN_CONST_INTEGER,
     TOKEN_CONST_FLOAT,
+    TOKEN_CONST_BOOLEAN,
     TOKEN_CONST_STRING,
     TOKEN_CONST_CHARACTER,
-    TOKEN_CONST_BOOL,
 
     TOKEN_ARITHMETIC_OPERATOR,
     TOKEN_BOOLEAN_RELATIONAL_OPERATOR,
@@ -44,18 +44,6 @@ typedef struct {
     char *value;
     size_t line_num;
 } Token;
-
-typedef enum {
-    START_STATE,
-    IDENTIFIER_STATE,
-    INTEGER_STATE,
-    FLOAT_STATE,
-    STRING_STATE,
-    CHAR_STATE,
-    OPERATOR_STATE,
-    DELIMITER_STATE,
-    INVALID_STATE
-} State;
 
 void print_token(const Token *token);
 Token **lexer(FILE *file, size_t *token_count);
