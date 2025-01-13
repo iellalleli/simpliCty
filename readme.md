@@ -1,3 +1,7 @@
+# NOTE
+- can handle unary of "a+ ++b" and "a++ +b"
+- expressions like "a++b" and "a+++b" are handled with ++ being the first to be detected. Not sure if that's how it should be handled.
+
 # INTRODUCTION
 
 simpliCty cleverly combines "Simplicity" with "C," perfectly capturing the essence of an accessible, beginner-friendly programming language inspired by the foundational C language. The name suggests clarity, minimalism, and ease of learning.

@@ -47,6 +47,7 @@ arithmetic + - * / $ % ^
 relational < > <= >= == !=
 logical && || !
 unary -- ++
+assignment = += -= *= /= $= %= 
 
 ~~ delimiters
 , ;
@@ -64,3 +65,14 @@ It spans multiple lines and contains special characters like @#$%^&*().
 143iloveu
 set``loop
 try?
+d+++a ~~ can't be hanlded properly.
+d+ ++a ~~ can be handled
+d++a
+"aaron
+john"
+"a%"
+"%a"
+
+~~ format specifiers
+"break%d"
+"%d"

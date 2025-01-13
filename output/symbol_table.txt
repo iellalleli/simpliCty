@@ -1,79 +1,107 @@
-TOKEN:  identifiers         TYPE: COMMENT                       
-TOKEN: intNum               TYPE: IDENTIFIER                    
-TOKEN: _arr_size            TYPE: IDENTIFIER                    
-TOKEN:  keywords            TYPE: COMMENT                       
-TOKEN: BREAK                TYPE: KEYWORD                       
-TOKEN: CONTINUE             TYPE: KEYWORD                       
-TOKEN: DEFAULT              TYPE: KEYWORD                       
-TOKEN: DISPLAY              TYPE: KEYWORD                       
-TOKEN: ELSE                 TYPE: KEYWORD                       
-TOKEN: FOR                  TYPE: KEYWORD                       
-TOKEN: IF                   TYPE: KEYWORD                       
-TOKEN: INPUT                TYPE: KEYWORD                       
-TOKEN: MAIN                 TYPE: KEYWORD                       
-TOKEN: RETURN               TYPE: KEYWORD                       
-TOKEN: WHILE                TYPE: KEYWORD                       
-TOKEN:  reserved words      TYPE: COMMENT                       
-TOKEN: BOOLEAN              TYPE: RESERVED-WORD                 
-TOKEN: CHARACTER            TYPE: RESERVED-WORD                 
-TOKEN: CONSTANT             TYPE: RESERVED-WORD                 
-TOKEN: FALSE                TYPE: BOOLEAN                       
-TOKEN: FLOAT                TYPE: RESERVED-WORD                 
-TOKEN: INTEGER              TYPE: RESERVED-WORD                 
-TOKEN: NULL                 TYPE: RESERVED-WORD                 
-TOKEN: STRING               TYPE: RESERVED-WORD                 
-TOKEN: TRUE                 TYPE: BOOLEAN                       
-TOKEN: VOID                 TYPE: RESERVED-WORD                 
-TOKEN:  noise words         TYPE: COMMENT                       
-TOKEN: DO                   TYPE: NOISE_WORD                    
-TOKEN: END                  TYPE: NOISE_WORD                    
-TOKEN: LET                  TYPE: NOISE_WORD                    
-TOKEN: THEN                 TYPE: NOISE_WORD                    
-TOKEN:  constants           TYPE: COMMENT                       
-TOKEN: 1020                 TYPE: INTEGER                       
-TOKEN: 3.14                 TYPE: FLOAT                         
-TOKEN: TRUE                 TYPE: BOOLEAN                       
-TOKEN: FALSE                TYPE: BOOLEAN                       
-TOKEN: c                    TYPE: CHARACTER                     
-TOKEN: hello                TYPE: INVALID                       
-TOKEN: word                 TYPE: STRING                        
-TOKEN:  operators           TYPE: COMMENT                       
-TOKEN: arithmetic           TYPE: IDENTIFIER                    
-TOKEN: +                    TYPE: ARITHMETIC_OPERATOR           
-TOKEN: -                    TYPE: ARITHMETIC_OPERATOR           
-TOKEN: *                    TYPE: ARITHMETIC_OPERATOR           
-TOKEN: /                    TYPE: ARITHMETIC_OPERATOR           
-TOKEN: $                    TYPE: ARITHMETIC_OPERATOR           
-TOKEN: %                    TYPE: ARITHMETIC_OPERATOR           
-TOKEN: ^                    TYPE: ARITHMETIC_OPERATOR           
-TOKEN: relational           TYPE: IDENTIFIER                    
-TOKEN: <                    TYPE: BOOLEAN_RELATIONAL_OPERATOR   
-TOKEN: >                    TYPE: BOOLEAN_RELATIONAL_OPERATOR   
-TOKEN: <=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR   
-TOKEN: >=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR   
-TOKEN: ==                   TYPE: BOOLEAN_RELATIONAL_OPERATOR   
-TOKEN: !=                   TYPE: BOOLEAN_RELATIONAL_OPERATOR   
-TOKEN: logical              TYPE: IDENTIFIER                    
-TOKEN: &&                   TYPE: BOOLEAN_LOGICAL_OPERATOR      
-TOKEN: ||                   TYPE: BOOLEAN_LOGICAL_OPERATOR      
-TOKEN: !                    TYPE: BOOLEAN_LOGICAL_OPERATOR      
-TOKEN: unary                TYPE: IDENTIFIER                    
-TOKEN: --                   TYPE: UNARY_OPERATOR                
-TOKEN: ++                   TYPE: UNARY_OPERATOR                
-TOKEN:  delimiters          TYPE: COMMENT                       
-TOKEN: ,                    TYPE: DELIMITER                     
-TOKEN: ;                    TYPE: DELIMITER                     
-TOKEN:  brackets            TYPE: COMMENT                       
-TOKEN: (                    TYPE: BRACKET_OPEN_PARENTHESIS      
-TOKEN: )                    TYPE: BRACKET_CLOSE_PARENTHESIS     
-TOKEN: {                    TYPE: BRACKET_OPEN_BRACE            
-TOKEN: }                    TYPE: BRACKET_CLOSE_BRACE           
-TOKEN: [                    TYPE: BRACKET_OPEN_BRACKET          
-TOKEN: ]                    TYPE: BRACKET_CLOSE_BRACKET         
-TOKEN: sample               TYPE: IDENTIFIER                    
-TOKEN:  comments            TYPE: COMMENT                       
-TOKEN:  This is a multi-line comment. It spans multiple lines and contains special characters like @#$%^&*().  TYPE: COMMENT                       
-TOKEN:  invalids            TYPE: COMMENT                       
-TOKEN: 143iloveu            TYPE: INVALID                       
-TOKEN: set``loop            TYPE: INVALID                       
-TOKEN: try?                 TYPE: INVALID                       
+TOKEN:  identifiers         | TYPE: COMMENT                        | LINE: 1
+TOKEN: intNum               | TYPE: IDENTIFIER                     | LINE: 2
+TOKEN: _arr_size            | TYPE: IDENTIFIER                     | LINE: 3
+TOKEN:  keywords            | TYPE: COMMENT                        | LINE: 5
+TOKEN: BREAK                | TYPE: KW_BREAK                       | LINE: 6
+TOKEN: CONTINUE             | TYPE: KW_CONTINUE                    | LINE: 7
+TOKEN: DEFAULT              | TYPE: KW_DEFAULT                     | LINE: 8
+TOKEN: DISPLAY              | TYPE: KW_DISPLAY                     | LINE: 9
+TOKEN: ELSE                 | TYPE: KW_ELSE                        | LINE: 10
+TOKEN: FOR                  | TYPE: KW_FOR                         | LINE: 11
+TOKEN: IF                   | TYPE: KW_IF                          | LINE: 12
+TOKEN: INPUT                | TYPE: KW_INPUT                       | LINE: 13
+TOKEN: MAIN                 | TYPE: KW_MAIN                        | LINE: 14
+TOKEN: RETURN               | TYPE: KW_RETURN                      | LINE: 15
+TOKEN: WHILE                | TYPE: KW_WHILE                       | LINE: 16
+TOKEN:  reserved words      | TYPE: COMMENT                        | LINE: 18
+TOKEN: BOOLEAN              | TYPE: TYPE_BOOLEAN                   | LINE: 19
+TOKEN: CHARACTER            | TYPE: TYPE_CHARACTER                 | LINE: 20
+TOKEN: CONSTANT             | TYPE: RW_CONSTANT                    | LINE: 21
+TOKEN: FALSE                | TYPE: BOOLEAN                        | LINE: 22
+TOKEN: FLOAT                | TYPE: TYPE_FLOAT                     | LINE: 23
+TOKEN: INTEGER              | TYPE: TYPE_INTEGER                   | LINE: 24
+TOKEN: NULL                 | TYPE: RW_NULL                        | LINE: 25
+TOKEN: STRING               | TYPE: TYPE_STRING                    | LINE: 26
+TOKEN: TRUE                 | TYPE: BOOLEAN                        | LINE: 27
+TOKEN: VOID                 | TYPE: RW_VOID                        | LINE: 28
+TOKEN:  noise words         | TYPE: COMMENT                        | LINE: 30
+TOKEN: DO                   | TYPE: NW_DO                          | LINE: 31
+TOKEN: END                  | TYPE: NW_END                         | LINE: 32
+TOKEN: LET                  | TYPE: NW_LET                         | LINE: 33
+TOKEN: THEN                 | TYPE: NW_THEN                        | LINE: 34
+TOKEN:  constants           | TYPE: COMMENT                        | LINE: 36
+TOKEN: 1020                 | TYPE: NUM_CONST                      | LINE: 37
+TOKEN: 3.14                 | TYPE: FLOAT_CONST                    | LINE: 38
+TOKEN: TRUE                 | TYPE: BOOLEAN                        | LINE: 39
+TOKEN: FALSE                | TYPE: BOOLEAN                        | LINE: 40
+TOKEN: c                    | TYPE: CHAR_CONST                     | LINE: 41
+TOKEN: hello                | TYPE: INVALID                        | LINE: 42
+TOKEN: word                 | TYPE: STR_CONST                      | LINE: 43
+TOKEN:  operators           | TYPE: COMMENT                        | LINE: 45
+TOKEN: arithmetic           | TYPE: IDENTIFIER                     | LINE: 46
+TOKEN: +                    | TYPE: ADD_OP                         | LINE: 46
+TOKEN: -                    | TYPE: SUB_OP                         | LINE: 46
+TOKEN: *                    | TYPE: MUL_OP                         | LINE: 46
+TOKEN: /                    | TYPE: DIV_OP                         | LINE: 46
+TOKEN: $                    | TYPE: INTDIV_OP                      | LINE: 46
+TOKEN: %                    | TYPE: MOD_OP                         | LINE: 46
+TOKEN: ^                    | TYPE: EXPO_OP                        | LINE: 46
+TOKEN: relational           | TYPE: IDENTIFIER                     | LINE: 47
+TOKEN: <                    | TYPE: REL_LT                         | LINE: 47
+TOKEN: >                    | TYPE: REL_GT                         | LINE: 47
+TOKEN: <=                   | TYPE: REL_LE                         | LINE: 47
+TOKEN: >=                   | TYPE: REL_GE                         | LINE: 47
+TOKEN: ==                   | TYPE: REL_EQ                         | LINE: 47
+TOKEN: !=                   | TYPE: REL_NEQ                        | LINE: 47
+TOKEN: logical              | TYPE: IDENTIFIER                     | LINE: 48
+TOKEN: &&                   | TYPE: LOG_AND                        | LINE: 48
+TOKEN: ||                   | TYPE: LOG_OR                         | LINE: 48
+TOKEN: !                    | TYPE: LOG_NOT                        | LINE: 48
+TOKEN: unary                | TYPE: IDENTIFIER                     | LINE: 49
+TOKEN: --                   | TYPE: UNARY_DEC                      | LINE: 49
+TOKEN: ++                   | TYPE: UNARY_INC                      | LINE: 49
+TOKEN: assignment           | TYPE: IDENTIFIER                     | LINE: 50
+TOKEN: =                    | TYPE: ASSIGN_OP                      | LINE: 50
+TOKEN: +=                   | TYPE: ADD_ASSIGN                     | LINE: 50
+TOKEN: -=                   | TYPE: SUB_ASSIGN                     | LINE: 50
+TOKEN: *=                   | TYPE: MUL_ASSIGN                     | LINE: 50
+TOKEN: /=                   | TYPE: DIV_ASSIGN                     | LINE: 50
+TOKEN: $=                   | TYPE: INTDIV_ASSIGN                  | LINE: 50
+TOKEN: %=                   | TYPE: MOD_ASSIGN                     | LINE: 50
+TOKEN:  delimiters          | TYPE: COMMENT                        | LINE: 52
+TOKEN: ,                    | TYPE: COMMA                          | LINE: 53
+TOKEN: ;                    | TYPE: SEMICOLON                      | LINE: 53
+TOKEN:  brackets            | TYPE: COMMENT                        | LINE: 55
+TOKEN: (                    | TYPE: LEFT_PAREN                     | LINE: 56
+TOKEN: )                    | TYPE: RIGHT_PAREN                    | LINE: 56
+TOKEN: {                    | TYPE: LEFT_CURLY                     | LINE: 56
+TOKEN: }                    | TYPE: RIGHT_CURLY                    | LINE: 56
+TOKEN: [                    | TYPE: LEFT_BRACKET                   | LINE: 56
+TOKEN: ]                    | TYPE: RIGHT_BRACKET                  | LINE: 56
+TOKEN: sample               | TYPE: IDENTIFIER                     | LINE: 58
+TOKEN:  comments            | TYPE: COMMENT                        | LINE: 58
+TOKEN:  This is a multi-line comment. It spans multiple lines and contains special characters like @#$%^&*().  | TYPE: COMMENT                        | LINE: 59
+TOKEN:  invalids            | TYPE: COMMENT                        | LINE: 64
+TOKEN: 143iloveu            | TYPE: INVALID                        | LINE: 65
+TOKEN: set``loop            | TYPE: INVALID                        | LINE: 66
+TOKEN: try?                 | TYPE: INVALID                        | LINE: 67
+TOKEN: d                    | TYPE: IDENTIFIER                     | LINE: 68
+TOKEN: ++                   | TYPE: UNARY_INC                      | LINE: 68
+TOKEN: +                    | TYPE: ADD_OP                         | LINE: 68
+TOKEN: a                    | TYPE: IDENTIFIER                     | LINE: 68
+TOKEN:  can't be hanlded properly. | TYPE: COMMENT                        | LINE: 68
+TOKEN: d                    | TYPE: IDENTIFIER                     | LINE: 69
+TOKEN: +                    | TYPE: ADD_OP                         | LINE: 69
+TOKEN: ++                   | TYPE: UNARY_INC                      | LINE: 69
+TOKEN: a                    | TYPE: IDENTIFIER                     | LINE: 69
+TOKEN:  can be handled      | TYPE: COMMENT                        | LINE: 69
+TOKEN: d                    | TYPE: IDENTIFIER                     | LINE: 70
+TOKEN: ++                   | TYPE: UNARY_INC                      | LINE: 70
+TOKEN: a                    | TYPE: IDENTIFIER                     | LINE: 70
+TOKEN: aaron
+john           | TYPE: STR_CONST                      | LINE: 72
+TOKEN: a%                   | TYPE: STR_CONST                      | LINE: 73
+TOKEN: %a                   | TYPE: STR_CONST                      | LINE: 74
+TOKEN:  format specifiers   | TYPE: COMMENT                        | LINE: 76
+TOKEN: break%d              | TYPE: STR_WITH_FORMAT                | LINE: 77
+TOKEN: %d                   | TYPE: STR_WITH_FORMAT                | LINE: 78

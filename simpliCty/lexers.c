@@ -16,31 +16,86 @@ Token *create_token(TokenType type, const char *value, size_t line_num) {
 
 const char* token_type_to_string(TokenType type) {
     switch (type) {
-        case TOKEN_IDENTIFIER: return "IDENTIFIER";
+        
+        case IDENTIFIER: return "IDENTIFIER";
+        case NUM_CONST: return "NUM_CONST";
+        case BOOL_CONST: return "BOOLEAN";     
+        case CHAR_CONST: return "CHAR_CONST";
+        case FLOAT_CONST: return "FLOAT_CONST";     
+        case STR_CONST: return "STR_CONST";
+        case STR_WITH_FORMAT: return "STR_WITH_FORMAT";
+        
+        case FORMAT_INT: return "FORMAT_INT";
+        case FORMAT_CHAR: return "FORMAT_CHAR";
+        case FORMAT_FLOAT: return "FORMAT_FLOAT";
+        case FORMAT_STR: return "FORMAT_STR";
+        
+        case ADD_OP: return "ADD_OP";
+        case SUB_OP: return "SUB_OP";
+        case MUL_OP: return "MUL_OP";
+        case DIV_OP: return "DIV_OP";
+        case INTDIV_OP: return "INTDIV_OP";
+        case MOD_OP: return "MOD_OP";
+        case EXPO_OP: return "EXPO_OP";
 
-        case TOKEN_KEYWORD: return "KEYWORD";
-        case TOKEN_RESERVED_WORD: return "RESERVED-WORD";
-        case TOKEN_NOISE_WORD: return "NOISE_WORD";
+        case REL_LT: return "REL_LT";
+        case REL_GT: return "REL_GT";
+        case REL_LE: return "REL_LE";
+        case REL_GE: return "REL_GE";
+        case REL_EQ: return "REL_EQ";
+        case REL_NEQ: return "REL_NEQ";
         
-        case TOKEN_CONST_INTEGER: return "INTEGER";
-        case TOKEN_CONST_FLOAT: return "FLOAT";     
-        case TOKEN_CONST_BOOLEAN: return "BOOLEAN";     
-        case TOKEN_CONST_STRING: return "STRING";
-        case TOKEN_CONST_CHARACTER: return "CHARACTER";
+        case LOG_AND: return "LOG_AND";
+        case LOG_OR: return "LOG_OR";
+        case LOG_NOT: return "LOG_NOT";
         
-        case TOKEN_ARITHMETIC_OPERATOR: return "ARITHMETIC_OPERATOR";
-        case TOKEN_BOOLEAN_RELATIONAL_OPERATOR: return "BOOLEAN_RELATIONAL_OPERATOR";
-        case TOKEN_BOOLEAN_LOGICAL_OPERATOR: return "BOOLEAN_LOGICAL_OPERATOR";
-        case TOKEN_ASSIGNMENT_OPERATOR: return "ASSIGNMENT_OPERATOR";
-        case TOKEN_UNARY_OPERATOR: return "UNARY_OPERATOR";
+        case UNARY_INC: return "UNARY_INC";
+        case UNARY_DEC: return "UNARY_DEC";
+
+        case ASSIGN_OP: return "ASSIGN_OP";
+        case ADD_ASSIGN: return "ADD_ASSIGN";
+        case SUB_ASSIGN: return "SUB_ASSIGN";
+        case MUL_ASSIGN: return "MUL_ASSIGN";
+        case DIV_ASSIGN: return "DIV_ASSIGN";
+        case INTDIV_ASSIGN: return "INTDIV_ASSIGN";
+        case MOD_ASSIGN: return "MOD_ASSIGN";
         
-        case TOKEN_DELIMITER: return "DELIMITER";
-        case TOKEN_BRACKET_OPEN_PARENTHESIS:return "BRACKET_OPEN_PARENTHESIS";
-        case TOKEN_BRACKET_CLOSE_PARENTHESIS: return "BRACKET_CLOSE_PARENTHESIS";
-        case TOKEN_BRACKET_OPEN_BRACE: return "BRACKET_OPEN_BRACE";
-        case TOKEN_BRACKET_CLOSE_BRACE: return "BRACKET_CLOSE_BRACE";
-        case TOKEN_BRACKET_OPEN_BRACKET: return "BRACKET_OPEN_BRACKET";
-        case TOKEN_BRACKET_CLOSE_BRACKET: return "BRACKET_CLOSE_BRACKET";
+        case COMMA: return "COMMA";
+        case SEMICOLON: return "SEMICOLON";
+
+        case LEFT_CURLY: return "LEFT_CURLY";
+        case RIGHT_CURLY: return "RIGHT_CURLY";
+        case LEFT_PAREN:return "LEFT_PAREN";
+        case RIGHT_PAREN: return "RIGHT_PAREN";
+        case LEFT_BRACKET: return "LEFT_BRACKET";
+        case RIGHT_BRACKET: return "RIGHT_BRACKET";
+
+        case KW_BREAK: return "KW_BREAK";
+        case KW_CONTINUE: return "KW_CONTINUE";
+        case KW_DEFAULT: return "KW_DEFAULT";
+        case KW_DISPLAY: return "KW_DISPLAY";
+        case KW_ELSE: return "KW_ELSE";
+        case KW_FOR: return "KW_FOR";
+        case KW_IF: return "KW_IF";
+        case KW_INPUT: return "KW_INPUT";
+        case KW_MAIN: return "KW_MAIN";
+        case KW_RETURN: return "KW_RETURN";
+        case KW_WHILE: return "KW_WHILE";
+
+        case TYPE_BOOLEAN: return "TYPE_BOOLEAN";
+        case TYPE_CHARACTER: return "TYPE_CHARACTER";
+        case TYPE_FLOAT: return "TYPE_FLOAT";
+        case TYPE_INTEGER: return "TYPE_INTEGER";
+        case TYPE_STRING: return "TYPE_STRING";
+
+        case RW_CONSTANT: return "RW_CONSTANT";
+        case RW_NULL: return "RW_NULL";
+        case RW_VOID: return "RW_VOID";
+
+        case NW_DO: return "NW_DO";
+        case NW_END: return "NW_END";
+        case NW_LET: return "NW_LET";
+        case NW_THEN: return "NW_THEN";
 
         case TOKEN_COMMENT: return "COMMENT";
         case TOKEN_UNKNOWN: return "UNKNOWN";
@@ -51,15 +106,17 @@ const char* token_type_to_string(TokenType type) {
 }
 
 void print_token(const Token *token) {
-    printf("TOKEN: %-20s TYPE: %-30s\n", 
+    printf("TOKEN: %-20s | TYPE: %-30s | LINE: %zu\n", 
            token->value, 
-           token_type_to_string(token->type));
+           token_type_to_string(token->type), 
+           token->line_num);
 }
 
 void write_to_symbol_table(const Token *token, FILE *symbol_table_file) {
-    fprintf(symbol_table_file, "TOKEN: %-20s TYPE: %-30s\n", 
+    fprintf(symbol_table_file, "TOKEN: %-20s | TYPE: %-30s | LINE: %zu\n", 
             token->value, 
-            token_type_to_string(token->type));
+            token_type_to_string(token->type), 
+           token->line_num);
 }
 
 void free_token(Token *token) {
@@ -93,7 +150,7 @@ Token *classify_number(const char *source, int *index) {
     }
 
     // Determine the token type based on the presence of a decimal point
-    TokenType type = has_decimal ? TOKEN_CONST_FLOAT : TOKEN_CONST_INTEGER;
+    TokenType type = has_decimal ? FLOAT_CONST : NUM_CONST;
 
     return create_token(type, buffer, line_number);
 }
@@ -102,13 +159,31 @@ Token *classify_number(const char *source, int *index) {
 Token *classify_string(const char *source, int *index) {
     char buffer[256] = {0};
     int buffer_index = 0;
+    int expect_format = 0;
+    int format_spec_count = 0;
 
     (*index)++; // Skip the opening quote
 
     while (source[*index] != '"' && source[*index] != '\0') {
-        if (source[*index] == '\n') {
-            line_number++; 
+        
+        if (expect_format != 0) {
+            if (strchr("dcfs", source[*index])) { // int char float str
+                format_spec_count++;
+            }
+
+            buffer[buffer_index++] = source[(*index)++];
+            expect_format = 0;
+            continue;
+
+        } else if (source[*index] == '\n') {
+            line_number++;
+             
+        } else if (source[*index] == '%') {
+            buffer[buffer_index++] = source[(*index)++];
+            expect_format++;
+            continue;
         }
+        
         buffer[buffer_index++] = source[(*index)++];
     }
 
@@ -118,7 +193,12 @@ Token *classify_string(const char *source, int *index) {
         fprintf(stderr, "Error: Unterminated string at line %zu\n", line_number);
     }
 
-    return create_token(TOKEN_CONST_STRING, buffer, line_number);
+    if (format_spec_count > 0) {
+        return create_token(STR_WITH_FORMAT, buffer, line_number);
+    } else {
+        return create_token(STR_CONST, buffer, line_number);
+    }
+    
 }
 
 
@@ -159,7 +239,7 @@ Token *classify_character(const char *source, int *index) {
     (*index)++;
 
     char buffer[2] = {c, '\0'};
-    return create_token(TOKEN_CONST_CHARACTER, buffer, line_number);
+    return create_token(CHAR_CONST, buffer, line_number);
 }
 
 
@@ -213,13 +293,13 @@ Token *classify_word(const char *lexeme) {
                 case 'r':
                     if (lexeme[startIdx + 2] == 'e' && lexeme[startIdx + 3] == 'a' && lexeme[startIdx + 4] == 'k' && 
                     lexeme[startIdx + 5] == '\0') {
-                        return create_token(TOKEN_KEYWORD, "BREAK", line_number); // "break"
+                        return create_token(KW_BREAK, "BREAK", line_number); // "break"
                     }
                     break;
                 case 'o':
                     if (lexeme[startIdx + 2] == 'o' && lexeme[startIdx + 3] == 'l' && lexeme[startIdx + 4] == 'e' && 
                     lexeme[startIdx + 5] == 'a' && lexeme[startIdx + 6] == 'n' && lexeme[startIdx + 7] == '\0') {
-                        return create_token(TOKEN_RESERVED_WORD, "BOOLEAN", line_number); // "boolean"
+                        return create_token(TYPE_BOOLEAN, "BOOLEAN", line_number); // "boolean"
                     }
                     break;
             }
@@ -232,7 +312,7 @@ Token *classify_word(const char *lexeme) {
                         lexeme[startIdx + 4] == 'a' && lexeme[startIdx + 5] == 'c' &&
                         lexeme[startIdx + 6] == 't' && lexeme[startIdx + 7] == 'e' &&
                         lexeme[startIdx + 8] == 'r' && lexeme[startIdx + 9] == '\0') {
-                        return create_token(TOKEN_RESERVED_WORD, "CHARACTER", line_number); // "character"
+                        return create_token(TYPE_CHARACTER, "CHARACTER", line_number); // "character"
                     }
                     break;
                 case 'o': 
@@ -243,14 +323,14 @@ Token *classify_word(const char *lexeme) {
                                     if (lexeme[startIdx + 4] == 't' && lexeme[startIdx + 5] == 'a' &&
                                         lexeme[startIdx + 6] == 'n' && lexeme[startIdx + 7] == 't' &&
                                         lexeme[startIdx + 8] == '\0') {
-                                        return create_token(TOKEN_RESERVED_WORD, "CONSTANT", line_number); // "constant"
+                                        return create_token(RW_CONSTANT, "CONSTANT", line_number); // "constant"
                                     }
                                     break;
                                 case 't': 
                                     if (lexeme[startIdx + 4] == 'i' && lexeme[startIdx + 5] == 'n' &&
                                         lexeme[startIdx + 6] == 'u' && lexeme[startIdx + 7] == 'e' &&
                                         lexeme[startIdx + 8] == '\0') {
-                                        return create_token(TOKEN_KEYWORD, "CONTINUE", line_number);// "continue"
+                                        return create_token(KW_CONTINUE, "CONTINUE", line_number);// "continue"
                                     }
                                     break;
                             }
@@ -263,21 +343,21 @@ Token *classify_word(const char *lexeme) {
             switch (lexeme[startIdx + 1]) {
                 case 'o':
                     if (lexeme[startIdx + 2] == '\0') {
-                            return create_token(TOKEN_NOISE_WORD, "DO", line_number); // "do"
+                            return create_token(NW_DO, "DO", line_number); // "do"
                     }
                     break;
                 case 'e':
                     if (lexeme[startIdx + 2] == 'f' && lexeme[startIdx + 3] == 'a' &&
                         lexeme[startIdx + 4] == 'u' && lexeme[startIdx + 5] == 'l' &&
                         lexeme[startIdx + 6] == 't' && lexeme[startIdx + 7] == '\0') {
-                            return create_token(TOKEN_KEYWORD, "DEFAULT", line_number); // "default"
+                            return create_token(KW_DEFAULT, "DEFAULT", line_number); // "default"
                     }
                     break;
                 case 'i':
                     if (lexeme[startIdx + 2] == 's' && lexeme[startIdx + 3] == 'p' &&
                         lexeme[startIdx + 4] == 'l' && lexeme[startIdx + 5] == 'a' &&
                         lexeme[startIdx + 6] == 'y' && lexeme[startIdx + 7] == '\0') {
-                            return create_token(TOKEN_KEYWORD, "DISPLAY", line_number); // "display"
+                            return create_token(KW_DISPLAY, "DISPLAY", line_number); // "display"
                     }
                     break;
             }
@@ -288,12 +368,12 @@ Token *classify_word(const char *lexeme) {
                 case 'l':
                     if (lexeme[startIdx + 2] == 's' && lexeme[startIdx + 3] == 'e' &&
                         lexeme[startIdx + 4] == '\0') {
-                            return create_token(TOKEN_KEYWORD, "ELSE", line_number); // "else"
+                            return create_token(KW_ELSE, "ELSE", line_number); // "else"
                     }
                     break;
                 case 'n':
                     if (lexeme[startIdx + 2] == 'd' && lexeme[startIdx + 3] == '\0') {
-                    return create_token(TOKEN_NOISE_WORD, "END", line_number);// "end"
+                    return create_token(NW_END, "END", line_number);// "end"
                 }
                 break;
             }
@@ -302,17 +382,17 @@ Token *classify_word(const char *lexeme) {
             switch (lexeme[startIdx + 1]) {
                 case 'o':
                     if (lexeme[startIdx + 2] == 'r' && lexeme[startIdx + 3] == '\0') {
-                        return create_token(TOKEN_KEYWORD, "FOR", line_number); // "for"
+                        return create_token(KW_FOR, "FOR", line_number); // "for"
                     }
                     break;
                 case 'l':
                     if (lexeme[startIdx + 2] == 'o' && lexeme[startIdx + 3] == 'a' && lexeme[startIdx + 4] == 't' && lexeme[startIdx + 5] == '\0') {
-                        return create_token(TOKEN_RESERVED_WORD, "FLOAT", line_number); // "float"
+                        return create_token(TYPE_FLOAT, "FLOAT", line_number); // "float"
                     }
                     break;
                 case 'a':
                     if (lexeme[startIdx + 2] == 'l' && lexeme[startIdx + 3] == 's' && lexeme[startIdx + 4] == 'e' && lexeme[startIdx + 5] == '\0') {
-                        return create_token(TOKEN_CONST_BOOLEAN, "FALSE", line_number); // "false"
+                        return create_token(BOOL_CONST, "FALSE", line_number); // "false"
                     }
                     break;
             }
@@ -321,7 +401,7 @@ Token *classify_word(const char *lexeme) {
             switch (lexeme[startIdx + 1]) {
                 case 'f':
                     if (lexeme[startIdx + 2] == '\0') {
-                        return create_token(TOKEN_KEYWORD, "IF", line_number); // "if"
+                        return create_token(KW_IF, "IF", line_number); // "if"
                     }
                     break;
                 case 'n':
@@ -329,13 +409,13 @@ Token *classify_word(const char *lexeme) {
                         case 't':
                             if (lexeme[startIdx + 3] == 'e' && lexeme[startIdx + 4] == 'g' &&
                                 lexeme[startIdx + 5] == 'e' && lexeme[startIdx + 6] == 'r' && lexeme[startIdx + 7] == '\0') {
-                                return create_token(TOKEN_RESERVED_WORD, "INTEGER", line_number); // "integer"
+                                return create_token(TYPE_INTEGER, "INTEGER", line_number); // "integer"
                             }
                             break;
                         case 'p':
                             if (lexeme[startIdx + 3] == 'u' && lexeme[startIdx + 4] == 't' &&
                                 lexeme[startIdx + 5] == '\0') {
-                                return create_token(TOKEN_KEYWORD, "INPUT", line_number); // "input"
+                                return create_token(KW_INPUT, "INPUT", line_number); // "input"
                             }
                             break;
                     }
@@ -347,7 +427,7 @@ Token *classify_word(const char *lexeme) {
             switch (lexeme[startIdx + 1]) {
                 case 'e':
                     if (lexeme[startIdx + 2] == 't' && lexeme[startIdx + 3] == '\0') {
-                            return create_token(TOKEN_NOISE_WORD, "LET", line_number);// "let"
+                            return create_token(NW_LET, "LET", line_number);// "let"
                     }
                     break;
             }
@@ -358,7 +438,7 @@ Token *classify_word(const char *lexeme) {
                 case 'a':
                     if (lexeme[startIdx + 2] == 'i' && lexeme[startIdx + 3] == 'n' &&
                         lexeme[startIdx + 4] == '\0') {
-                            return create_token(TOKEN_KEYWORD, "MAIN", line_number); // "main"
+                            return create_token(KW_MAIN, "MAIN", line_number); // "main"
                     }
                     break;
             }
@@ -369,7 +449,7 @@ Token *classify_word(const char *lexeme) {
                 case 'u':
                     if (lexeme[startIdx + 2] == 'l' && lexeme[startIdx + 3] == 'l' &&
                         lexeme[startIdx + 4] == '\0') {
-                            return create_token(TOKEN_RESERVED_WORD, "NULL", line_number); // "null"
+                            return create_token(RW_NULL, "NULL", line_number); // "null"
                     }
                     break;
             }
@@ -381,7 +461,7 @@ Token *classify_word(const char *lexeme) {
                     if (lexeme[startIdx + 2] == 't' && lexeme[startIdx + 3] == 'u' &&
                         lexeme[startIdx + 4] == 'r' && lexeme[startIdx + 5] == 'n' &&
                         lexeme[startIdx + 6] == '\0') {
-                            return create_token(TOKEN_KEYWORD, "RETURN", line_number); // "return"
+                            return create_token(KW_RETURN, "RETURN", line_number); // "return"
                     }
                     break;
             }
@@ -393,7 +473,7 @@ Token *classify_word(const char *lexeme) {
                     if (lexeme[startIdx + 2] == 'r' && lexeme[startIdx + 3] == 'i' &&
                         lexeme[startIdx + 4] == 'n' && lexeme[startIdx + 5] == 'g' &&
                         lexeme[startIdx + 6] == '\0') {
-                            return create_token(TOKEN_RESERVED_WORD, "STRING", line_number); // "string"
+                            return create_token(TYPE_STRING, "STRING", line_number); // "string"
                     }
                     break;
             }
@@ -403,13 +483,13 @@ Token *classify_word(const char *lexeme) {
                 case 'h':
                     if (lexeme[startIdx + 2] == 'e' && lexeme[startIdx + 3] == 'n' &&
                         lexeme[startIdx + 4] == '\0') {
-                            return create_token(TOKEN_NOISE_WORD, "THEN", line_number); // "then"
+                            return create_token(NW_THEN, "THEN", line_number); // "then"
                     }
                     break;
                 case 'r':
                     if (lexeme[startIdx + 2] == 'u' && lexeme[startIdx + 3] == 'e' &&
                         lexeme[startIdx + 4] == '\0') {
-                            return create_token(TOKEN_CONST_BOOLEAN, "TRUE", line_number); // "true"
+                            return create_token(BOOL_CONST, "TRUE", line_number); // "true"
                     }
                     break;
             }
@@ -420,7 +500,7 @@ Token *classify_word(const char *lexeme) {
                 case 'o':
                     if (lexeme[startIdx + 2] == 'i' && lexeme[startIdx + 3] == 'd' &&
                         lexeme[startIdx + 4] == '\0') {
-                            return create_token(TOKEN_RESERVED_WORD, "VOID", line_number);// "void"
+                            return create_token(RW_VOID, "VOID", line_number);// "void"
                     }
                     break;
             }
@@ -430,7 +510,7 @@ Token *classify_word(const char *lexeme) {
                 case 'h':
                     if (lexeme[startIdx + 2] == 'i' && lexeme[startIdx + 3] == 'l' &&
                         lexeme[startIdx + 4] == 'e' &&  lexeme[startIdx + 5] == '\0') {
-                            return create_token(TOKEN_KEYWORD, "WHILE", line_number); // "while"
+                            return create_token(KW_WHILE, "WHILE", line_number); // "while"
                     }
                     break;
             }
@@ -439,7 +519,7 @@ Token *classify_word(const char *lexeme) {
             break;
     }
     // If no keyword is matched, classify as an identifier
-    return create_token(TOKEN_IDENTIFIER, lexeme, line_number);
+    return create_token(IDENTIFIER, lexeme, line_number);
 }
 
 
@@ -453,43 +533,43 @@ Token *classify_operator(const char *source, int *index) {
         case '<':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_BOOLEAN_RELATIONAL_OPERATOR, "<=", line_number);
+                return create_token(REL_LE, "<=", line_number);
             }
-            return create_token(TOKEN_BOOLEAN_RELATIONAL_OPERATOR, "<", line_number);
+            return create_token(REL_LT, "<", line_number);
 
         case '>':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_BOOLEAN_RELATIONAL_OPERATOR, ">=", line_number);
+                return create_token(REL_GE, ">=", line_number);
             }
-            return create_token(TOKEN_BOOLEAN_RELATIONAL_OPERATOR, ">", line_number);
+            return create_token(REL_GT, ">", line_number);
 
         case '=':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_BOOLEAN_RELATIONAL_OPERATOR, "==", line_number);
+                return create_token(REL_EQ, "==", line_number);
             }
-            return create_token(TOKEN_ASSIGNMENT_OPERATOR, "=", line_number);
+            return create_token(ASSIGN_OP, "=", line_number);
 
         case '!':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_BOOLEAN_RELATIONAL_OPERATOR, "!=", line_number);
+                return create_token(REL_NEQ, "!=", line_number);
             }
-            return create_token(TOKEN_BOOLEAN_LOGICAL_OPERATOR, "!", line_number);
+            return create_token(LOG_NOT, "!", line_number);
 
         // Logical Operators
         case '&':
             if (next == '&') {
                 (*index)++;
-                return create_token(TOKEN_BOOLEAN_LOGICAL_OPERATOR, "&&", line_number);
+                return create_token(LOG_AND, "&&", line_number);
             }
             break;
 
         case '|':
             if (next == '|') {
                 (*index)++;
-                return create_token(TOKEN_BOOLEAN_LOGICAL_OPERATOR, "||", line_number);
+                return create_token(LOG_OR, "||", line_number);
             }
             break;
 
@@ -497,55 +577,55 @@ Token *classify_operator(const char *source, int *index) {
         case '+':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "+=", line_number);
+                return create_token(ADD_ASSIGN, "+=", line_number);
             }
             if (next == '+') {
                 (*index)++;
-                return create_token(TOKEN_UNARY_OPERATOR, "++", line_number);
+                return create_token(UNARY_INC, "++", line_number);
             }
-            return create_token(TOKEN_ARITHMETIC_OPERATOR, "+", line_number);
+            return create_token(ADD_OP, "+", line_number);
 
         case '-':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "-=", line_number);
+                return create_token(SUB_ASSIGN, "-=", line_number);
             }
             if (next == '-') {
                 (*index)++;
-                return create_token(TOKEN_UNARY_OPERATOR, "--", line_number);
+                return create_token(UNARY_DEC, "--", line_number);
             }
-            return create_token(TOKEN_ARITHMETIC_OPERATOR, "-", line_number);
+            return create_token(SUB_OP, "-", line_number);
 
         case '*':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "*=", line_number);
+                return create_token(MUL_ASSIGN, "*=", line_number);
             }
-            return create_token(TOKEN_ARITHMETIC_OPERATOR, "*", line_number);
+            return create_token(MUL_OP, "*", line_number);
 
         case '/':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "/=", line_number);
+                return create_token(DIV_ASSIGN, "/=", line_number);
             }
-            return create_token(TOKEN_ARITHMETIC_OPERATOR, "/", line_number);
+            return create_token(DIV_OP, "/", line_number);
 
         case '$':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "$=", line_number);
+                return create_token(INTDIV_ASSIGN, "$=", line_number);
             }
-            return create_token(TOKEN_ARITHMETIC_OPERATOR, "$", line_number);
+            return create_token(INTDIV_OP, "$", line_number);
 
         case '%':
             if (next == '=') {
                 (*index)++;
-                return create_token(TOKEN_ASSIGNMENT_OPERATOR, "%=", line_number);
+                return create_token(MOD_ASSIGN, "%=", line_number);
             }
-            return create_token(TOKEN_ARITHMETIC_OPERATOR, "%", line_number);
+            return create_token(MOD_OP, "%", line_number);
 
         case '^':
-            return create_token(TOKEN_ARITHMETIC_OPERATOR, "^", line_number);
+            return create_token(EXPO_OP, "^", line_number);
 
         // Default case for unknown operators
         default: {
@@ -560,20 +640,20 @@ Token *classify_operator(const char *source, int *index) {
 
 Token *classify_delimiter(char c, size_t line_number) {
     switch (c) {
-        case ';': return create_token(TOKEN_DELIMITER, ";", line_number);
-        case ',': return create_token(TOKEN_DELIMITER, ",", line_number);
+        case ',': return create_token(COMMA, ",", line_number);
+        case ';': return create_token(SEMICOLON, ";", line_number);
 
         // Parentheses
-        case '(': return create_token(TOKEN_BRACKET_OPEN_PARENTHESIS, "(", line_number);
-        case ')': return create_token(TOKEN_BRACKET_CLOSE_PARENTHESIS, ")", line_number);
+        case '(': return create_token(LEFT_PAREN, "(", line_number);
+        case ')': return create_token(RIGHT_PAREN, ")", line_number);
 
         // Braces
-        case '{': return create_token(TOKEN_BRACKET_OPEN_BRACE, "{", line_number);
-        case '}': return create_token(TOKEN_BRACKET_CLOSE_BRACE, "}", line_number);
+        case '{': return create_token(LEFT_CURLY, "{", line_number);
+        case '}': return create_token(RIGHT_CURLY, "}", line_number);
 
         // Brackets
-        case '[': return create_token(TOKEN_BRACKET_OPEN_BRACKET, "[", line_number);
-        case ']': return create_token(TOKEN_BRACKET_CLOSE_BRACKET, "]", line_number);
+        case '[': return create_token(LEFT_BRACKET, "[", line_number);
+        case ']': return create_token(RIGHT_BRACKET, "]", line_number);
 
         // Default case for unknown delimiters
         default: {

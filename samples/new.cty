@@ -29,3 +29,5 @@ main {
 
     end
 }
+
+integer one, two, three = 3, four
