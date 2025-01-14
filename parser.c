@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "lexers.h"
 
 typedef struct TreeNode {
@@ -11,38 +12,115 @@ typedef struct TreeNode {
     size_t childCount;
 } TreeNode;
 
+typedef struct {
+    char *type;
+    char *value;
+} TokenInfo;
+
 static size_t nextNodeID = 0;
+static size_t currentTokenIndex = 0;
+TokenInfo *tokens = NULL;
+size_t token_count = 0;
+FILE* parsed_file = NULL; 
 
 // Function prototypes
-TreeNode* createNode(int id, int parentID, const char *value);
-void addChild(TreeNode *parent, TreeNode *child);
-void freeTree(TreeNode *node);
-void parseProgram(TreeNode *node, Token **tokens, size_t *index, size_t token_count, FILE *debugFile);
-void parseStatement(TreeNode *node, Token **tokens, size_t *index, size_t token_count, FILE *debugFile);
-void parseAssignment(TreeNode *node, Token **tokens, size_t *index, size_t token_count, FILE *debugFile);
-void parseExpression(TreeNode *node, Token **tokens, size_t *index, size_t token_count, FILE *debugFile);
-void writeTreeToFile(TreeNode *node, FILE *debugFile, FILE *csvFile, int level);
-void writeTokenDebug(FILE *debugFile, Token *token);
+TreeNode* parseSimplicity();
+TreeNode* parseDeclStmt();
+TreeNode* parseVarDecl();
+TreeNode* parseBlock();
+TreeNode* parseTypeSpec();
+int match(const char *expectedType);
+void writeParseTree(FILE* file, TreeNode* node);
+void freeTree(TreeNode* node);
 
-// TreeNode functions
-TreeNode* createNode(int id, int parentID, const char *value) {
-    TreeNode *node = (TreeNode *)malloc(sizeof(TreeNode));
-    node->id = id;
-    node->parentID = parentID;
+// Function to read tokens from the symbol table
+TokenInfo* readSymbolTable(const char* filename, size_t* token_count) {
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        fprintf(stderr, "Error opening symbol table file\n");
+        return NULL;
+    }
+
+    TokenInfo* tokens = malloc(10 * sizeof(TokenInfo));
+    *token_count = 0;
+    size_t capacity = 10;
+    char line[256];
+
+    while (fgets(line, sizeof(line), file)) {
+        if (*token_count >= capacity) {
+            capacity *= 2;
+            tokens = realloc(tokens, capacity * sizeof(TokenInfo));
+        }
+
+        char type[64], value[64];
+        if (sscanf(line, "TOKEN: %s | TYPE: %s", value, type) == 2) {
+            tokens[*token_count].type = strdup(type);
+            tokens[*token_count].value = strdup(value);
+            (*token_count)++;
+        }
+    }
+
+    fclose(file);
+    return tokens;
+}
+
+// Function to write current parsing state
+void writeParsingState() {
+    if (!parsed_file) return;
+
+    // First line with all types
+    for (size_t i = 0; i < token_count; i++) {
+        fprintf(parsed_file, "%s ", tokens[i].type);
+    }
+    fprintf(parsed_file, "\n");
+
+    // Following lines with progressive replacement of types with values
+    for (size_t i = 0; i <= currentTokenIndex; i++) {
+        for (size_t j = 0; j < token_count; j++) {
+            if (j < i) {
+                fprintf(parsed_file, "%s ", tokens[j].value);
+            } else {
+                fprintf(parsed_file, "%s ", tokens[j].type);
+            }
+        }
+        fprintf(parsed_file, "\n");
+    }
+}
+
+// Match the current token with the expected type and advance if successful
+int match(const char *expectedType) {
+    if (currentTokenIndex < token_count) {
+        printf("Matching token: %s (expected: %s)\n", tokens[currentTokenIndex].type, expectedType);
+        if (strcmp(tokens[currentTokenIndex].type, expectedType) == 0) {
+            currentTokenIndex++;
+            writeParsingState();  // Write state after each successful match
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Parse tree management
+TreeNode* createNode(const char* value) {
+    TreeNode* node = (TreeNode*)malloc(sizeof(TreeNode));
+    node->id = nextNodeID++;
+    node->parentID = -1;
     node->value = strdup(value);
     node->children = NULL;
     node->childCount = 0;
     return node;
 }
 
-void addChild(TreeNode *parent, TreeNode *child) {
-    parent->children = (TreeNode **)realloc(parent->children, sizeof(TreeNode *) * (parent->childCount + 1));
+void addChild(TreeNode* parent, TreeNode* child) {
+    if (!child) return;
+    parent->children = realloc(parent->children, sizeof(TreeNode*) * (parent->childCount + 1));
     parent->children[parent->childCount++] = child;
+    child->parentID = parent->id;
 }
 
-void freeTree(TreeNode *node) {
+void freeTree(TreeNode* node) {
     if (!node) return;
-    for (size_t i = 0; i < node->childCount; ++i) {
+    for (size_t i = 0; i < node->childCount; i++) {
         freeTree(node->children[i]);
     }
     free(node->value);
@@ -50,135 +128,189 @@ void freeTree(TreeNode *node) {
     free(node);
 }
 
-// Helper function to write token debug information
-void writeTokenDebug(FILE *debugFile, Token *token) {
-    fprintf(debugFile, "TYPE: %s | TOKEN: %s | LEXEME: %s\n", token->type, token->value, token->value);
-}
+void writeParseTree(FILE* file, TreeNode* node) {
+    if (!node) return;
 
-// Parsing functions
-void parseProgram(TreeNode *node, Token **tokens, size_t *index, size_t token_count, FILE *debugFile) {
-    while (*index < token_count) {
-        TreeNode *statementNode = createNode(nextNodeID++, node->id, "Statement");
-        parseStatement(statementNode, tokens, index, token_count, debugFile);
-        addChild(node, statementNode);
-    }
-}
-
-void parseStatement(TreeNode *node, Token **tokens, size_t *index, size_t token_count, FILE *debugFile) {
-    Token *current = tokens[*index];
-    if (current->type == IDENTIFIER) {
-        writeTokenDebug(debugFile, current);
-        parseAssignment(node, tokens, index, token_count, debugFile);
-    } else if (current->type == KW_MAIN) {
-        writeTokenDebug(debugFile, current);
-        (*index)++;
-        if (*index < token_count && tokens[*index]->type == LEFT_PAREN) {
-            writeTokenDebug(debugFile, tokens[*index]);
-            (*index)++;
-        }
-        if (*index < token_count && tokens[*index]->type == RIGHT_PAREN) {
-            writeTokenDebug(debugFile, tokens[*index]);
-            (*index)++;
-        }
-        if (*index < token_count && tokens[*index]->type == LEFT_CURLY) {
-            writeTokenDebug(debugFile, tokens[*index]);
-            (*index)++;
-        }
-
-        while (*index < token_count && tokens[*index]->type != RIGHT_CURLY) {
-            TreeNode *child = createNode(nextNodeID++, node->id, "Statement");
-            parseStatement(child, tokens, index, token_count, debugFile);
-            addChild(node, child);
-        }
-        if (*index < token_count && tokens[*index]->type == RIGHT_CURLY) {
-            writeTokenDebug(debugFile, tokens[*index]);
-            (*index)++;
-        }
-    }
-}
-
-void parseAssignment(TreeNode *node, Token **tokens, size_t *index, size_t token_count, FILE *debugFile) {
-    if (*index < token_count && tokens[*index]->type == IDENTIFIER) {
-        writeTokenDebug(debugFile, tokens[*index]);
-        TreeNode *varNode = createNode(nextNodeID++, node->id, tokens[*index]->value);
-        addChild(node, varNode);
-        (*index)++;
-
-        if (*index < token_count && tokens[*index]->type == ASSIGN_OP) {
-            writeTokenDebug(debugFile, tokens[*index]);
-            TreeNode *assignNode = createNode(nextNodeID++, node->id, "=");
-            addChild(node, assignNode);
-            (*index)++;
-            parseExpression(assignNode, tokens, index, token_count, debugFile);
-        }
-
-        if (*index < token_count && tokens[*index]->type == SEMICOLON) {
-            writeTokenDebug(debugFile, tokens[*index]);
-            (*index)++;
-        }
-    }
-}
-
-void parseExpression(TreeNode *node, Token **tokens, size_t *index, size_t token_count, FILE *debugFile) {
-    if (*index < token_count && 
-       (tokens[*index]->type == NUM_CONST || tokens[*index]->type == IDENTIFIER)) {
-        writeTokenDebug(debugFile, tokens[*index]);
-        TreeNode *exprNode = createNode(nextNodeID++, node->id, tokens[*index]->value);
-        addChild(node, exprNode);
-        (*index)++;
-    }
-}
-
-// Helper function to write the parse tree to files
-void writeTreeToFile(TreeNode *node, FILE *debugFile, FILE *csvFile, int level) {
-    // Write to debug file
-    for (int i = 0; i < level; i++) fprintf(debugFile, "  ");
-    fprintf(debugFile, "Node(ID=%d, Value='%s', ParentID=%d)\n", node->id, node->value, node->parentID);
-
-    // Write to CSV file
-    fprintf(csvFile, "%d,%d,%s\n", node->id, node->parentID, node->value);
-
-    // Recursively write children
+    fprintf(file, "%d,%d,%s\n", node->id, node->parentID, node->value);
     for (size_t i = 0; i < node->childCount; i++) {
-        writeTreeToFile(node->children[i], debugFile, csvFile, level + 1);
+        writeParseTree(file, node->children[i]);
     }
 }
 
-// Updated runParser function
-void runParser(Token **tokens, size_t token_count) {
-    TreeNode *root = createNode(nextNodeID++, -1, "Program");
-    size_t index = 0;
+// Modified parseTypeSpec to return TreeNode* instead of int
+TreeNode* parseTypeSpec() {
+    if (match("TYPE_BOOLEAN")) return createNode("TYPE_BOOLEAN");
+    if (match("TYPE_CHARACTER")) return createNode("TYPE_CHARACTER");
+    if (match("TYPE_FLOAT")) return createNode("TYPE_FLOAT");
+    if (match("TYPE_INTEGER")) return createNode("TYPE_INTEGER");
+    if (match("TYPE_STRING")) return createNode("TYPE_STRING");
+    return NULL;
+}
 
-    // Open debug file early
-    FILE *debugFile = fopen("output/parsed.txt", "w");
-    if (!debugFile) {
-        fprintf(stderr, "Error: Unable to create debug file.\n");
+// Modified parseBlock function
+TreeNode* parseBlock() {
+    TreeNode* block = createNode("BLOCK");
+    
+    if (!match("LEFT_CURLY")) {  // Changed from LEFT_BRACE to LEFT_CURLY
+        printf("Error: Expected LEFT_CURLY\n");
+        freeTree(block);
+        return NULL;
+    }
+    addChild(block, createNode("LEFT_CURLY"));
+
+    // Here you could add parsing for statements inside the block
+    // For now, we'll just handle empty blocks
+
+    if (!match("RIGHT_CURLY")) {  // Changed from RIGHT_BRACE to RIGHT_CURLY
+        printf("Error: Expected RIGHT_CURLY\n");
+        freeTree(block);
+        return NULL;
+    }
+    addChild(block, createNode("RIGHT_CURLY"));
+
+    return block;
+}
+
+// Modified parseVarDecl function
+TreeNode* parseVarDecl() {
+    TreeNode* varDecl = createNode("VAR_DECL");
+
+    if (!match("NW_LET")) {
+        printf("Error: Expected NW_LET in variable declaration\n");
+        freeTree(varDecl);
+        return NULL;
+    }
+    addChild(varDecl, createNode("NW_LET"));
+
+    // Parse type specifier
+    TreeNode* typeSpec = parseTypeSpec();
+    if (!typeSpec) {
+        printf("Error: Expected type specifier in variable declaration\n");
+        freeTree(varDecl);
+        return NULL;
+    }
+    addChild(varDecl, typeSpec);
+
+    if (!match("IDENTIFIER")) {
+        printf("Error: Expected identifier in variable declaration\n");
+        freeTree(varDecl);
+        return NULL;
+    }
+    addChild(varDecl, createNode(tokens[currentTokenIndex - 1].value));
+
+    if (!match("SEMICOLON")) {
+        printf("Error: Expected semicolon in variable declaration\n");
+        freeTree(varDecl);
+        return NULL;
+    }
+    addChild(varDecl, createNode("SEMICOLON"));
+
+    return varDecl;
+}
+
+// Modified parseSimplicity function
+TreeNode* parseSimplicity() {
+    TreeNode* root = createNode("SIMPLICITY");
+    
+    // Parse declarations
+    while (currentTokenIndex < token_count) {
+        if (strcmp(tokens[currentTokenIndex].type, "NW_LET") == 0) {
+            TreeNode* decl = parseVarDecl();
+            if (!decl) {
+                freeTree(root);
+                return NULL;
+            }
+            addChild(root, decl);
+        } else {
+            break;
+        }
+    }
+
+    // Parse main function
+    if (!match("KW_MAIN")) {
+        printf("Error: Expected KW_MAIN\n");
         freeTree(root);
+        return NULL;
+    }
+    TreeNode* mainNode = createNode("MAIN");
+    addChild(root, mainNode);
+
+    if (!match("LEFT_PAREN")) {
+        printf("Error: Expected LEFT_PAREN\n");
+        freeTree(root);
+        return NULL;
+    }
+    addChild(mainNode, createNode("LEFT_PAREN"));
+
+    if (!match("RIGHT_PAREN")) {
+        printf("Error: Expected RIGHT_PAREN\n");
+        freeTree(root);
+        return NULL;
+    }
+    addChild(mainNode, createNode("RIGHT_PAREN"));
+
+    // Parse block
+    TreeNode* block = parseBlock();
+    if (!block) {
+        freeTree(root);
+        return NULL;
+    }
+    addChild(mainNode, block);
+
+    return root;
+}
+
+// Main function
+void runParser(const char* symbol_table_file) {
+    tokens = readSymbolTable(symbol_table_file, &token_count);
+    if (!tokens) {
+        fprintf(stderr, "Failed to read symbol table\n");
         return;
     }
 
-    parseProgram(root, tokens, &index, token_count, debugFile);
-
-    printf("Parsing completed. Syntax tree constructed.\n");
-
-    // Open CSV file
-    FILE *csvFile = fopen("output/parse_tree.csv", "w");
-    if (!csvFile) {
-        fprintf(stderr, "Error: Unable to create CSV file.\n");
-        freeTree(root);
-        fclose(debugFile);
+    // Open parsed.txt for writing
+    parsed_file = fopen("output/parsed.txt", "w");
+    if (!parsed_file) {
+        fprintf(stderr, "Failed to open output/parsed.txt for writing\n");
+        // Clean up and return
+        for (size_t i = 0; i < token_count; i++) {
+            free(tokens[i].type);
+            free(tokens[i].value);
+        }
+        free(tokens);
         return;
     }
 
-    // Write headers for CSV file
-    fprintf(csvFile, "NodeID,ParentID,Value\n");
+    currentTokenIndex = 0;
+    nextNodeID = 0;
+    TreeNode* parseTree = parseSimplicity();
 
-    // Write the tree to both files
-    writeTreeToFile(root, debugFile, csvFile, 0);
+    if (parseTree) {
+        printf("Parsing successful!\n");
 
-    fclose(debugFile);
-    fclose(csvFile);
+        FILE* treeFile = fopen("output/parse_tree.csv", "w");
+        if (treeFile) {
+            fprintf(treeFile, "NodeID,ParentID,Value\n");
+            writeParseTree(treeFile, parseTree);
+            fclose(treeFile);
+        } else {
+            printf("Error: Could not open output/parse_tree.csv for writing\n");
+        }
+        freeTree(parseTree);
+    } else {
+        printf("Parsing failed at token %zu: %s\n", currentTokenIndex, 
+               currentTokenIndex < token_count ? tokens[currentTokenIndex].type : "END");
+    }
 
-    // Free the tree after parsing
-    freeTree(root);
+    // Close parsed.txt
+    if (parsed_file) {
+        fclose(parsed_file);
+    }
+
+    // Clean up tokens
+    for (size_t i = 0; i < token_count; i++) {
+        free(tokens[i].type);
+        free(tokens[i].value);
+    }
+    free(tokens);
 }

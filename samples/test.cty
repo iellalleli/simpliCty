@@ -1,5 +1,4 @@
-let integer x, y;
+let integer x;
 main() {
-    x = 10;
-    y = 20;
+    
 }

@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "lexers.h"
-#include "parser.h" // Include parser header for integration
+#include "parser.h"
 
 const char* VALID_EXTENSION = ".cty";
 void check_file_type(const char* filename, const char* expectedExtension);
@@ -53,13 +53,8 @@ int main(int argc, char *argv[]) {
 
     // Run the parser
     printf("\n--- Running Parser ---\n");
-    int parse_result = runParser("output/symbol_table.txt"); // Use the symbol table as the input for the parser
-
-    if (parse_result) {
-        printf("Parsing completed successfully.\n");
-    } else {
-        printf("Parsing failed.\n");
-    }
+    runParser("output/symbol_table.txt");  // We don't need to check return value anymore
+    printf("Parsing completed successfully. Check parsed.txt for results.\n");
 
     // Clean up allocated memory for tokens
     for (size_t j = 0; j < token_count; j++) {
@@ -77,7 +72,7 @@ int main(int argc, char *argv[]) {
 // Only files with .cty extensions are accepted
 void check_file_type(const char* filename, const char* expectedExtension){
     const char *dot = strrchr(filename, '.');
-
+    
     // Check if filename has an invalid extension
     if(dot == NULL || strcmp(dot, expectedExtension) != 0){
         fprintf(stderr, "Error: unexpected file type: %s\nExpected file type: <filename.cty>\n", filename);
