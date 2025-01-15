@@ -194,6 +194,102 @@ void writeParseTree(FILE* file, TreeNode* node) {
     }
 }
 
+TreeNode* parseSimplicity() {
+    TreeNode* root = createNode("SIMPLICITY");
+    
+    // [ { DECL_STMT | FUNC_STMT | ARR_STMT } ]
+    while (currentTokenIndex < token_count) {
+        // Look ahead to determine which type of statement we have
+        if (match("RW_CONSTANT") || match("NW_LET") || 
+            tokens[currentTokenIndex].type == "TYPE_BOOLEAN" ||
+            tokens[currentTokenIndex].type == "TYPE_CHARACTER" ||
+            tokens[currentTokenIndex].type == "TYPE_FLOAT" ||
+            tokens[currentTokenIndex].type == "TYPE_INTEGER" ||
+            tokens[currentTokenIndex].type == "TYPE_STRING" ||
+            tokens[currentTokenIndex].type == "RW_VOID") {
+            
+            size_t savedIndex = currentTokenIndex;
+            TreeNode* stmt = NULL;
+            
+            // Try parsing each type of statement
+            if ((stmt = parseDeclStmt()) != NULL) {
+                addChild(root, stmt);
+            } else {
+                currentTokenIndex = savedIndex;
+                if ((stmt = parseFuncStmt()) != NULL) {
+                    addChild(root, stmt);
+                } else {
+                    currentTokenIndex = savedIndex;
+                    if ((stmt = parseArrStmt()) != NULL) {
+                        addChild(root, stmt);
+                    } else {
+                        // If none of the statements match, break the loop
+                        currentTokenIndex = savedIndex;
+                        break;
+                    }
+                }
+            }
+        } else {
+            break;
+        }
+    }
+    
+    // TYPE_SPEC
+    TreeNode* typeSpec = parseTypeSpec();
+    if (!typeSpec) {
+        printf("Error: Expected type specifier\n");
+        freeTree(root);
+        return NULL;
+    }
+    addChild(root, typeSpec);
+    
+    // KW_MAIN
+    if (!match("KW_MAIN")) {
+        printf("Error: Expected 'main'\n");
+        freeTree(root);
+        return NULL;
+    }
+    addChild(root, createNode("MAIN"));
+    
+    // LEFT_PAREN
+    if (!match("LEFT_PAREN")) {
+        printf("Error: Expected '('\n");
+        freeTree(root);
+        return NULL;
+    }
+    addChild(root, createNode("LEFT_PAREN"));
+    
+    // [ ARG_LIST | RW_VOID ]
+    if (match("RW_VOID")) {
+        addChild(root, createNode("RW_VOID"));
+    } else {
+        TreeNode* args = parseArgList();
+        if (args) {
+            addChild(root, args);
+        }
+    }
+    
+    // RIGHT_PAREN
+    if (!match("RIGHT_PAREN")) {
+        printf("Error: Expected ')'\n");
+        freeTree(root);
+        return NULL;
+    }
+    addChild(root, createNode("RIGHT_PAREN"));
+    
+    // BLOCK
+    TreeNode* block = parseBlock();
+    if (!block) {
+        printf("Error: Expected block\n");
+        freeTree(root);
+        return NULL;
+    }
+    addChild(root, block);
+    
+    return root;
+}
+
+
 // Modified parseTypeSpec to return TreeNode* instead of int
 TreeNode* parseTypeSpec() {
     if (match("TYPE_BOOLEAN")) return createNode("TYPE_BOOLEAN");
@@ -260,58 +356,6 @@ TreeNode* parseVarDecl() {
     addChild(varDecl, createNode("SEMICOLON"));
 
     return varDecl;
-}
-
-// Modified parseSimplicity function
-TreeNode* parseSimplicity() {
-    TreeNode* root = createNode("SIMPLICITY");
-    
-    // Parse declarations
-    while (currentTokenIndex < token_count) {
-        if (strcmp(tokens[currentTokenIndex].type, "NW_LET") == 0) {
-            TreeNode* decl = parseVarDecl();
-            if (!decl) {
-                freeTree(root);
-                return NULL;
-            }
-            addChild(root, decl);
-        } else {
-            break;
-        }
-    }
-
-    // Parse main function
-    if (!match("KW_MAIN")) {
-        printf("Error: Expected KW_MAIN\n");
-        freeTree(root);
-        return NULL;
-    }
-    TreeNode* mainNode = createNode("MAIN");
-    addChild(root, mainNode);
-
-    if (!match("LEFT_PAREN")) {
-        printf("Error: Expected LEFT_PAREN\n");
-        freeTree(root);
-        return NULL;
-    }
-    addChild(mainNode, createNode("LEFT_PAREN"));
-
-    if (!match("RIGHT_PAREN")) {
-        printf("Error: Expected RIGHT_PAREN\n");
-        freeTree(root);
-        return NULL;
-    }
-    addChild(mainNode, createNode("RIGHT_PAREN"));
-
-    // Parse block
-    TreeNode* block = parseBlock();
-    if (!block) {
-        freeTree(root);
-        return NULL;
-    }
-    addChild(mainNode, block);
-
-    return root;
 }
 
 // Template for new parsing functions (add your implementations gradually)
