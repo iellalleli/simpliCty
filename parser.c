@@ -87,6 +87,7 @@ TreeNode* createNode(const char* value);
 void addChild(TreeNode* parent, TreeNode* child);
 void freeTree(TreeNode* node);
 void writeParseTree(FILE* file, TreeNode* node);
+void writeParseTreeParenthesized(FILE* file, TreeNode* node, int depth);
 void writeParsingState();
 TokenInfo* readSymbolTable(const char* filename, size_t* token_count);
 
@@ -104,15 +105,34 @@ TokenInfo* readSymbolTable(const char* filename, size_t* token_count) {
     char line[256];
 
     while (fgets(line, sizeof(line), file)) {
-        if (*token_count >= capacity) {
-            capacity *= 2;
-            tokens = realloc(tokens, capacity * sizeof(TokenInfo));
-        }
+        if (strstr(line, "TOKEN:") && strstr(line, "TYPE:")) {
+            if (*token_count >= capacity) {
+                capacity *= 2;
+                tokens = realloc(tokens, capacity * sizeof(TokenInfo));
+            }
 
-        char type[64], value[64];
-        if (sscanf(line, "TOKEN: %s | TYPE: %s", value, type) == 2) {
-            tokens[*token_count].type = strdup(type);
-            tokens[*token_count].value = strdup(value);
+            // Tokenize the line by splitting around "TOKEN:" and "TYPE:"
+            char* tokenPart = strtok(line, "|");
+            char* typePart = strtok(NULL, "|");
+
+            // Process the "TOKEN" value
+            if (tokenPart) {
+                char value[100];
+                if (sscanf(tokenPart, "TOKEN: %s", value) == 1) {
+                    tokens[*token_count].value = strdup(value);
+                }
+            }
+
+            // Process the "TYPE" value
+            if (typePart) {
+                char type[100];
+                if (sscanf(typePart, " TYPE: %s", type) == 1) {
+                    tokens[*token_count].type = strdup(type);
+                }
+            }
+
+            // Print the token and its type
+            printf("%s %s ", tokens[*token_count].value, tokens[*token_count].type);
             (*token_count)++;
         }
     }
@@ -441,13 +461,6 @@ TreeNode* parseAssign() {
         return assign;
     }
 
-    // Check for BOOL_EXP
-    TreeNode* boolExp = parseBoolExp();
-    if (boolExp) {
-        addChild(assign, boolExp);
-        return assign;
-    }
-
     // Check for ASSIGNMENT followed by ARITH_EXP
     TreeNode* assignment = parseAssignment();
     if (assignment) {
@@ -460,13 +473,20 @@ TreeNode* parseAssign() {
         } else {
             // Cleanup if ARITH_EXP is missing
             freeTree(assign);
-            return NULL;
+            // return NULL;
         }
     }
 
+    // Check for BOOL_EXP
+    TreeNode* boolExp = parseBoolExp();
+    if (boolExp) {
+        addChild(assign, boolExp);
+        return assign;
+    }
+
     // If none of the options matched, cleanup and return NULL
-    freeTree(assign);
-    return NULL;
+    // freeTree(assign);
+    return assign;
 }
 
 TreeNode* parseBoolExp() {
@@ -528,6 +548,8 @@ TreeNode* parseBoolTerm() {
 }
 
 TreeNode* parseBoolFactor() {
+    
+    printf("================================== BOOLFACTOR");
     // Create the root node for BOOL_FACTOR
     TreeNode* boolFactor = createNode("BOOL_FACTOR");
 
@@ -553,6 +575,7 @@ TreeNode* parseBoolFactor() {
         return boolFactor;
     }
 
+    printf("================================== BACK TO BOOLFACT");
     // Case 3: LEFT_PAREN BOOL_EXP RIGHT_PAREN
     if (match("LEFT_PAREN",0)) {
         addChild(boolFactor, createNode("LEFT_PAREN"));
@@ -574,6 +597,7 @@ TreeNode* parseBoolFactor() {
         return boolFactor;
     }
 
+    printf("================================== BACK TO BOOLFACT");
     // Case 4: ARITH_EXP
     TreeNode* arithExp = parseArithExp();
     if (arithExp) {
@@ -599,27 +623,33 @@ TreeNode* parseBoolFactor() {
 }
 
 TreeNode* parseRelExp() {
+    
+    printf("================================== RELEXP");
     // Create the root node for REL_EXP
     TreeNode* relExp = createNode("REL_EXP");
 
     // Attempt to parse the first ARITH_EXP
     TreeNode* firstArithExp = parseArithExp();
-    if (!firstArithExp) {
-        freeTree(relExp); // Cleanup if the first ARITH_EXP is missing
-        return NULL;
+    if (firstArithExp) {
+        // freeTree(relExp); // Cleanup if the first ARITH_EXP is missing
+        // return NULL;
+        addChild(relExp, firstArithExp);
     }
-    addChild(relExp, firstArithExp);
 
+    printf("================================== REL_OP");
     // Attempt to parse REL_OP
     TreeNode* relOp = parseRelOp();
+    
     if (!relOp) {
         freeTree(relExp); // Cleanup if REL_OP is missing
         return NULL;
     }
     addChild(relExp, relOp);
 
+    printf("================================== 2ND ARITH");
     // Attempt to parse the second ARITH_EXP
     TreeNode* secondArithExp = parseArithExp();
+    
     if (!secondArithExp) {
         freeTree(relExp); // Cleanup if the second ARITH_EXP is missing
         return NULL;
@@ -630,6 +660,8 @@ TreeNode* parseRelExp() {
 }
 
 TreeNode* parseArithExp() { 
+    
+    printf("================================== ARITH");
     // Create the root node for ARITH_EXP
     TreeNode* arithExp = createNode("ARITH_EXP");
 
@@ -640,9 +672,11 @@ TreeNode* parseArithExp() {
         return NULL;
     }
     addChild(arithExp, term);
-
+    printf("Done with first term ===================");
     // Parse { ADDMIN_OP TERM }
+    
     while (1) {
+        printf("Done with first term ===================");
         // Check if ADDMIN_OP is present
         TreeNode* addMinOp = parseAddMinOp();
         if (!addMinOp) {
@@ -671,6 +705,8 @@ TreeNode* parseAddMinOp() {
 }
 
 TreeNode* parseTerm() {
+
+    printf("================================== TERM");
     // Create the root node for TERM
     TreeNode* term = createNode("TERM");
 
@@ -682,6 +718,8 @@ TreeNode* parseTerm() {
     }
     addChild(term, factor);
 
+    
+    printf("===================================== done first TERM");
     // Parse { MULDIV_OP FACTOR }
     while (1) {
         // Check if MULDIV_OP is present
@@ -706,6 +744,7 @@ TreeNode* parseTerm() {
 }
 
 TreeNode* parseFactor() {
+    printf("================================== FACTOR");
     // Create the root node for FACTOR
     TreeNode* factor = createNode("FACTOR");
 
@@ -717,6 +756,8 @@ TreeNode* parseFactor() {
     }
     addChild(factor, base);
 
+
+    printf("================================== done parse base");
     // Parse { EXPO_OP FACTOR }
     while (1) {
         // Check if EXPO_OP (terminal) is present
@@ -741,6 +782,7 @@ TreeNode* parseFactor() {
 }
 
 TreeNode* parseBase() { 
+    printf("================================== BASE");
     // Create the root node for BASE
     TreeNode* base = createNode("BASE");
 
@@ -1465,6 +1507,7 @@ TreeNode* parseStmt() {
 }
 
 TreeNode* parseAssignStmt() {
+    printf("===================================== ASSIGN");
     // Create the root node for ASSIGN_STMT
     TreeNode* assignStmt = createNode("ASSIGN_STMT");
 
@@ -1474,6 +1517,8 @@ TreeNode* parseAssignStmt() {
         addChild(assignStmt, nwLet);
     }
 
+
+    printf("===================================== MATCH IDENTIFIER");
     // Match IDENTIFIER
     if (!match("IDENTIFIER",0)) {
         freeTree(assignStmt);
@@ -1482,6 +1527,7 @@ TreeNode* parseAssignStmt() {
     TreeNode* identifier = createNode("IDENTIFIER");
     addChild(assignStmt, identifier);
 
+    printf("===================================== ASSIGN");
     // Parse ASSIGN (nonterminal)
     TreeNode* assign = parseAssign();
     if (!assign) {
@@ -1490,6 +1536,8 @@ TreeNode* parseAssignStmt() {
     }
     addChild(assignStmt, assign);
 
+
+    printf("===================================== SEMICOLON");
     // Match SEMICOLON
     if (!match("SEMICOLON",0)) {
         freeTree(assignStmt);
@@ -2451,9 +2499,8 @@ TreeNode* parseInputStmt() {
     return inputStmt;
 }
 
-
-// Main function
 void runParser(const char* symbol_table_file) {
+    // Read the symbol table
     tokens = readSymbolTable(symbol_table_file, &token_count);
     if (!tokens) {
         fprintf(stderr, "Failed to read symbol table\n");
@@ -2464,6 +2511,7 @@ void runParser(const char* symbol_table_file) {
     parsed_file = fopen("output/parsed.txt", "w");
     if (!parsed_file) {
         fprintf(stderr, "Failed to open output/parsed.txt for writing\n");
+        // Clean up tokens before returning
         for (size_t i = 0; i < token_count; i++) {
             free(tokens[i].type);
             free(tokens[i].value);
@@ -2472,41 +2520,86 @@ void runParser(const char* symbol_table_file) {
         return;
     }
 
+    // Initialize parsing state
     currentTokenIndex = 0;
     nextNodeID = 0;
 
     // Parse the input starting from the top-level nonterminal
     TreeNode* parseTree = parseSimplicity();
-
+    
     if (parseTree) {
         printf("Parsing successful!\n");
         fprintf(parsed_file, "Parsing successful!\n\n");
 
-        // Write the parse tree in a readable format to parsed.txt
+        // Write the parse tree in the original format to parsed.txt
         fprintf(parsed_file, "Parsed Tree:\n");
         writeParseTree(parsed_file, parseTree);
 
-        // Optionally write parse_tree.csv
-        FILE* treeFile = fopen("output/parse_tree.csv", "w");
-        if (treeFile) {
-            fprintf(treeFile, "NodeID,ParentID,Value\n");
-            writeParseTree(treeFile, parseTree);
-            fclose(treeFile);
+        // Write the CSV format
+        FILE* csvFile = fopen("output/parse_tree.csv", "w");
+        if (csvFile) {
+            fprintf(csvFile, "NodeID,ParentID,Value\n");
+            writeParseTree(csvFile, parseTree);
+            fclose(csvFile);
+        } else {
+            fprintf(stderr, "Failed to open output/parse_tree.csv for writing\n");
         }
 
+        // Write the parenthesized format
+        FILE* txtFile = fopen("output/parse_tree_parenthesized.txt", "w");
+        if (txtFile) {
+            writeParseTreeParenthesized(txtFile, parseTree, 0);
+            fclose(txtFile);
+        } else {
+            fprintf(stderr, "Failed to open output/parse_tree_parenthesized.txt for writing\n");
+        }
+
+        // Free the parse tree
         freeTree(parseTree);
     } else {
-        printf("Parsing failed at token %zu: %s\n", currentTokenIndex,
+        // Report parsing failure
+        printf("Parsing failed at token %zu: %s\n", 
+               currentTokenIndex, 
                currentTokenIndex < token_count ? tokens[currentTokenIndex].type : "END");
-        fprintf(parsed_file, "Parsing failed at token %zu: %s\n", currentTokenIndex,
+        fprintf(parsed_file, "Parsing failed at token %zu: %s\n", 
+                currentTokenIndex, 
                 currentTokenIndex < token_count ? tokens[currentTokenIndex].type : "END");
     }
 
+    // Clean up
     fclose(parsed_file);
-
     for (size_t i = 0; i < token_count; i++) {
         free(tokens[i].type);
         free(tokens[i].value);
     }
     free(tokens);
+}
+
+// New function to write parse tree in parenthesized format
+void writeParseTreeParenthesized(FILE* file, TreeNode* node, int depth) {
+    if (!node) return;
+    
+    // Add indentation for better readability
+    for (int i = 0; i < depth; i++) {
+        fprintf(file, "  ");
+    }
+    
+    // Print the current node's value
+    fprintf(file, "(%s", node->value);
+    
+    // If node has children, print them on new lines
+    if (node->childCount > 0) {
+        fprintf(file, "\n");
+        for (size_t i = 0; i < node->childCount; i++) {
+            writeParseTreeParenthesized(file, node->children[i], depth + 1);
+        }
+        // Close parenthesis on a new line with proper indentation
+        for (int i = 0; i < depth; i++) {
+            fprintf(file, "  ");
+        }
+        fprintf(file, ")\n");
+    } else {
+        // For leaf nodes, close parenthesis on the same line
+        fprintf(file, ")\n");
+    }
 }
