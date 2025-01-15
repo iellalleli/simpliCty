@@ -24,14 +24,71 @@ size_t token_count = 0;
 FILE* parsed_file = NULL; 
 
 // Function prototypes
-TreeNode* parseSimplicity();
-TreeNode* parseDeclStmt();
-TreeNode* parseVarDecl();
-TreeNode* parseBlock();
-TreeNode* parseTypeSpec();
-int match(const char *expectedType);
-void writeParseTree(FILE* file, TreeNode* node);
+TreeNode* parseSimplicity(); //1
+TreeNode* parseDeclStmt(); // 2
+TreeNode* parseVarDecl(); //3
+TreeNode* parseTypeSpec(); // 4
+TreeNode* parseIdList(); // 5
+TreeNode* parseAssign(); // 6
+TreeNode* parseBoolExp(); // 7
+TreeNode* parseBoolTerm(); // 8
+TreeNode* parseBoolFactor(); // 9
+TreeNode* parseRelExp(); // 10
+TreeNode* parseArithExp(); // 11
+TreeNode* parseAddMinOp(); // 12
+TreeNode* parseTerm(); // 13
+TreeNode* parseFactor(); // 14
+TreeNode* parseBase(); // 15
+TreeNode* parseUpdate(); // 16
+TreeNode* parseUpdateOp(); // 17
+TreeNode* parseMulDivOp(); // 18
+TreeNode* parseRelOp(); // 19
+TreeNode* parseBoolLiteral(); // 20
+TreeNode* parseAssignment(); // 21
+TreeNode* parseArrDecl(); // 22
+TreeNode* parseFuncDecl(); // 23
+TreeNode* parseParamList(); // 24
+TreeNode* parseParam(); // 25
+TreeNode* parseFuncStmt(); // 26
+TreeNode* parseFuncCall(); // 27
+TreeNode* parseArgList(); // 28
+TreeNode* parseExp(); // 29
+TreeNode* parseFuncDef(); // 30
+TreeNode* parseBlock(); // 31
+TreeNode* parseStmtList(); // 32
+TreeNode* parseStmt(); // 33
+TreeNode* parseAssignStmt(); // 34
+TreeNode* parseArrStmt(); // 35
+TreeNode* parseArrAssign(); // 36
+TreeNode* parseArrAccess(); // 37
+TreeNode* parseArrInit(); // 38
+TreeNode* parseArrList(); // 39
+TreeNode* parseArrElem(); // 40
+TreeNode* parseCondStmt(); // 41
+TreeNode* parseIfStmt(); // 42
+TreeNode* parseIfElseStmt(); // 43
+TreeNode* parseElseIf(); // 44
+TreeNode* parseElse(); // 45
+TreeNode* parseIterStmt(); // 46
+TreeNode* parseWhileStmt(); // 47
+TreeNode* parseForStmt(); // 48
+TreeNode* parseReturnStmt(); // 49
+TreeNode* parseOutputStmt(); // 50
+TreeNode* parseStdOutput(); // 51
+TreeNode* parseValueOutput(); // 52
+TreeNode* parseFormatSpecifier(); // 53
+TreeNode* parseSequenceOutput(); // 54
+TreeNode* parseOutputElem(); // 55
+TreeNode* parseInputStmt(); // 56
+
+// Utility functions
+int match(const char* expectedType);
+TreeNode* createNode(const char* value);
+void addChild(TreeNode* parent, TreeNode* child);
 void freeTree(TreeNode* node);
+void writeParseTree(FILE* file, TreeNode* node);
+void writeParsingState();
+TokenInfo* readSymbolTable(const char* filename, size_t* token_count);
 
 // Function to read tokens from the symbol table
 TokenInfo* readSymbolTable(const char* filename, size_t* token_count) {
@@ -158,9 +215,6 @@ TreeNode* parseBlock() {
     }
     addChild(block, createNode("LEFT_CURLY"));
 
-    // Here you could add parsing for statements inside the block
-    // For now, we'll just handle empty blocks
-
     if (!match("RIGHT_CURLY")) {  // Changed from RIGHT_BRACE to RIGHT_CURLY
         printf("Error: Expected RIGHT_CURLY\n");
         freeTree(block);
@@ -259,6 +313,34 @@ TreeNode* parseSimplicity() {
 
     return root;
 }
+
+// Template for new parsing functions (add your implementations gradually)
+TreeNode* parseArrDecl() {
+    TreeNode* node = createNode("ARR_DECL");
+    // TODO: Implement array declaration parsing
+    return node;
+}
+
+TreeNode* parseFuncDecl() {
+    TreeNode* node = createNode("FUNC_DECL");
+    // TODO: Implement function declaration parsing
+    return node;
+}
+
+TreeNode* parseIdList() {
+    TreeNode* node = createNode("ID_LIST");
+    // TODO: Implement identifier list parsing
+    return node;
+}
+
+TreeNode* parseAssign() {
+    TreeNode* node = createNode("ASSIGN");
+    // TODO: Implement assignment parsing
+    return node;
+}
+
+// Add all other function templates similarly...
+
 
 // Main function
 void runParser(const char* symbol_table_file) {
