@@ -3,8 +3,9 @@
 #include <string.h>
 
 #include "lexers.h"
+#include "parser.h"
 
-#define VALID_EXTENSION ".cty"
+const char* VALID_EXTENSION = ".cty";
 void check_file_type(const char* filename, const char* expectedExtension);
 
 int main(int argc, char *argv[]) {
@@ -15,10 +16,18 @@ int main(int argc, char *argv[]) {
 
     check_file_type(argv[1], VALID_EXTENSION);
 
-    // Open the .cty file provided as a command-line argument
+    // Open the .cty file
     FILE *file = fopen(argv[1], "r");
     if (!file) {
         printf("ERROR: File not found\n");
+        exit(1);
+    }
+
+    // Open/Create the output file for the symbol table
+    FILE *symbol_table = fopen("output/symbol_table.txt", "w");
+    if (!symbol_table) {
+        printf("ERROR: Unable to create the output file\n");
+        fclose(file);
         exit(1);
     }
 
@@ -30,14 +39,22 @@ int main(int argc, char *argv[]) {
     // Check if lexer returned NULL tokens
     if (!tokens) {
         printf("Error: Lexer failed to process the file\n");
+        fclose(symbol_table);
         exit(1);
     }
 
-    // Print all tokens
+    // Write tokens to the symbol table
     printf("Tokens generated:\n");
     for (size_t i = 0; i < token_count; i++) {
         print_token(tokens[i]);
+        write_to_symbol_table(tokens[i], symbol_table);
     }
+    fclose(symbol_table);
+
+    // Run the parser
+    printf("\n--- Running Parser ---\n");
+    runParser("output/symbol_table.txt");  // We don't need to check return value anymore
+    printf("Parsing completed successfully. Check parsed.txt for results.\n");
 
     // Clean up allocated memory for tokens
     for (size_t j = 0; j < token_count; j++) {
@@ -48,18 +65,17 @@ int main(int argc, char *argv[]) {
     }
     free(tokens);  // Free the token array
 
-    printf("Lexical analysis complete.\n");
+    printf("Processing complete.\n");
     return 0;
 }
 
 // Only files with .cty extensions are accepted
 void check_file_type(const char* filename, const char* expectedExtension){
-    // Get pointer to the dot position at the end of the filename
     const char *dot = strrchr(filename, '.');
     
     // Check if filename has an invalid extension
     if(dot == NULL || strcmp(dot, expectedExtension) != 0){
-        fprintf(stderr, "Error: unexpected file type: %s\n\n", filename);
+        fprintf(stderr, "Error: unexpected file type: %s\nExpected file type: <filename.cty>\n", filename);
         exit(1);
     }
 }

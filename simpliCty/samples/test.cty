@@ -1,0 +1,22 @@
+integer count;
+float x, y;
+string message = "John";
+integer numbers[10];
+integer sum(integer a, integer b) {
+    character a = 'a';
+}
+
+integer output(string name) {
+    display("hello %cd", name);
+    display("%d, %f hello ", num, num1);
+}
+
+integer main(void) {
+    let integer x = 5;
+    if(x > 0) {
+        display("Positive number");
+    }
+    for (integer i = e; i < 10; i++){
+    display("Count: %d", i)
+    }
+}
