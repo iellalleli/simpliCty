@@ -1,4 +1,5 @@
-main.exe
+*.exe
+*.sh
 lexers.c
 try.c
 main.c

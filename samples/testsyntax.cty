@@ -1,0 +1,59 @@
+~~ Declaration statement
+integer count; 
+float x, y, z;
+string message = "John";
+integer numbers[10];
+
+~~ Function Definition
+integer sum(integer a, integer b) {
+    character a = 'a';
+}
+
+integer main (void) {
+    ~~ Input Statement
+    age = input("What is your age?", integer);
+    
+    ~~ Output Statements
+    display("Hello");
+    display("%s", message);
+    display("message: %s age: %d", message, age);
+
+    ~~ Assignment Statements
+    age = 13;
+    num = 13 + 29 - 3 * 9;
+    isTrue = 13 == 21 + x;
+    x = 5;
+    y = x; 
+    z = (x + y == 10);
+    x += 2;
+    x++;
+
+    ~~ Conditional Statements
+    if(x > 0) {
+        if(x > 0) {
+            display("Positive number");
+        } else {
+            display("Something");
+        }
+
+    } else if (x < 0) {
+        display("Negative number");
+    } else if (x == 0){
+        display("Zero");
+    } else {
+        display("Any: ");
+    }
+    
+
+    ~~ Iterative Statements
+    for (integer i = 0; i < 10; i++) {
+        for (integer j = 0; j < 10; j++) {
+            display("Hello");
+        }   
+    }
+
+    while (x > 10){
+        display("%d", 1+2);
+    }
+
+}

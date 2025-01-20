@@ -1,7 +1,3 @@
-# NOTE
-- can handle unary of "a+ ++b" and "a++ +b"
-- expressions like "a++b" and "a+++b" are handled with ++ being the first to be detected. Not sure if that's how it should be handled.
-
 # INTRODUCTION
 
 simpliCty cleverly combines "Simplicity" with "C," perfectly capturing the essence of an accessible, beginner-friendly programming language inspired by the foundational C language. The name suggests clarity, minimalism, and ease of learning.
@@ -12,10 +8,10 @@ Designed as a simplified version of C, simpliCty aims to provide a more accessib
 # HOW TO RUN
 - Compile program using 
 ```
-gcc simpliCty/lexers.c simpliCty/main.c -o main.exe
+gcc simpliCty/lexers.c simpliCty/parser.c simpliCty/main.c -o compile.exe
 ```
 - Run program with the sample files using .cty extension 
 ```
-./main.exe samples/new.cty
+./compile.exe samples/new.cty
 ```
 - Output will display in terminal and are logged at output/symbol_table.txt

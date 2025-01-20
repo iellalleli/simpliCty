@@ -1,0 +1,167 @@
+LINE 2: Error: Expected 'TYPE_BOOLEAN', but found 'TYPE_INTEGER'.
+LINE 2: Recovered at synchronizing token 'SEMICOLON'
+LINE 3: Error: Expected 'TYPE_CHARACTER', but found 'IDENTIFIER'.
+LINE 3: Recovered at synchronizing token 'SEMICOLON'
+LINE 4: Error: Expected 'TYPE_FLOAT', but found 'IDENTIFIER'.
+LINE 4: Recovered at synchronizing token 'SEMICOLON'
+LINE 5: Error: Expected 'TYPE_INTEGER', but found 'IDENTIFIER'.
+LINE 5: Recovered at synchronizing token 'SEMICOLON'
+LINE 8: Error: Expected 'TYPE_STRING', but found 'TYPE_INTEGER'.
+LINE 8: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 9 :: Error: Expected a type specification.
+LINE 9 :: Error: Expected TYPE_SPEC.
+LINE 9: Recovered at synchronizing token 'SEMICOLON'
+LINE 2: Error: Expected 'TYPE_BOOLEAN', but found 'TYPE_INTEGER'.
+LINE 2: Recovered at synchronizing token 'SEMICOLON'
+LINE 3: Error: Expected 'TYPE_CHARACTER', but found 'IDENTIFIER'.
+LINE 3: Recovered at synchronizing token 'SEMICOLON'
+LINE 4: Error: Expected 'TYPE_FLOAT', but found 'IDENTIFIER'.
+LINE 4: Recovered at synchronizing token 'SEMICOLON'
+LINE 5: Error: Expected 'TYPE_INTEGER', but found 'IDENTIFIER'.
+LINE 5: Recovered at synchronizing token 'SEMICOLON'
+LINE 8: Error: Expected 'TYPE_STRING', but found 'TYPE_INTEGER'.
+LINE 8: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 9 :: Error: Expected a type specification.
+LINE 9 :: Error: Expected type specification in array declaration.
+LINE 9: Recovered at synchronizing token 'SEMICOLON'
+LINE 2: Error: Expected 'TYPE_BOOLEAN', but found 'TYPE_INTEGER'.
+LINE 2: Recovered at synchronizing token 'SEMICOLON'
+LINE 3: Error: Expected 'TYPE_CHARACTER', but found 'IDENTIFIER'.
+LINE 3: Recovered at synchronizing token 'SEMICOLON'
+LINE 4: Error: Expected 'TYPE_FLOAT', but found 'IDENTIFIER'.
+LINE 4: Recovered at synchronizing token 'SEMICOLON'
+LINE 5: Error: Expected 'TYPE_INTEGER', but found 'IDENTIFIER'.
+LINE 5: Recovered at synchronizing token 'SEMICOLON'
+LINE 8: Error: Expected 'TYPE_STRING', but found 'TYPE_INTEGER'.
+LINE 8: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 9 :: Error: Expected a type specification.
+LINE 9 :: Error: Expected type specification or 'void' in function declaration.
+LINE 9: Recovered at synchronizing token 'SEMICOLON'
+LINE 10 :: Error: Expected declaration statement.
+LINE 10: Recovered at synchronizing token 'RIGHT_CURLY'
+LINE 12: Error: Expected 'IDENTIFIER', but found 'TYPE_INTEGER'.
+LINE 12: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 14 :: Error: Expected function identifier in function call.
+LINE 14: Recovered at synchronizing token 'SEMICOLON'
+LINE 17: Error: Expected 'TYPE_BOOLEAN', but found 'KW_DISPLAY'.
+LINE 17: Recovered at synchronizing token 'SEMICOLON'
+LINE 18: Error: Expected 'TYPE_CHARACTER', but found 'LEFT_PAREN'.
+LINE 18: Recovered at synchronizing token 'SEMICOLON'
+LINE 19: Error: Expected 'TYPE_FLOAT', but found 'LEFT_PAREN'.
+LINE 19: Recovered at synchronizing token 'SEMICOLON'
+LINE 22: Error: Expected 'TYPE_INTEGER', but found 'IDENTIFIER'.
+LINE 22: Recovered at synchronizing token 'SEMICOLON'
+LINE 23: Error: Expected 'TYPE_STRING', but found 'ASSIGN_OP'.
+LINE 23: Recovered at synchronizing token 'SEMICOLON'
+LINE 24 :: Error: Expected a type specification.
+LINE 24 :: Error: Expected a type specification in function definition.
+LINE 24: Recovered at synchronizing token 'SEMICOLON'
+LINE 25 :: Error: Expected a function call or definition.
+LINE 25: Recovered at synchronizing token 'SEMICOLON'
+LINE 26: Error: Expected 'LEFT_BRACKET', but found 'ASSIGN_OP'.
+LINE 26: Recovered at synchronizing token 'SEMICOLON'
+LINE 27 :: Error: Expected '[' after identifier in array access.
+LINE 27: Recovered at synchronizing token 'SEMICOLON'
+LINE 28 :: Error: Expected array access in array assignment.
+LINE 28: Recovered at synchronizing token 'SEMICOLON'
+LINE 29: Error: Expected 'TYPE_BOOLEAN', but found 'IDENTIFIER'.
+LINE 29: Recovered at synchronizing token 'SEMICOLON'
+LINE 32: Error: Expected 'TYPE_CHARACTER', but found 'KW_IF'.
+LINE 32: Recovered at synchronizing token 'KW_IF'
+LINE 32: Error: Expected 'TYPE_FLOAT', but found 'IDENTIFIER'.
+LINE 32: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 33: Error: Expected 'TYPE_INTEGER', but found 'LEFT_PAREN'.
+LINE 33: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 34: Error: Expected 'TYPE_STRING', but found 'LEFT_PAREN'.
+LINE 34: Recovered at synchronizing token 'SEMICOLON'
+LINE 35 :: Error: Expected a type specification.
+LINE 35 :: Error: Expected a type specifier for array initialization.
+LINE 35: Recovered at synchronizing token 'KW_ELSE'
+LINE 35 :: Error: Expected an array statement (assignment or initialization).
+LINE 35: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 36 :: Error: Unexpected token 'KW_DISPLAY'. Attempting recovery...
+LINE 36: Recovered at synchronizing token 'SEMICOLON'
+LINE 37: Error: Expected 'TYPE_BOOLEAN', but found 'RIGHT_CURLY'.
+LINE 37: Recovered at synchronizing token 'RIGHT_CURLY'
+LINE 39: Error: Expected 'TYPE_CHARACTER', but found 'KW_ELSE'.
+LINE 39: Recovered at synchronizing token 'KW_ELSE'
+LINE 39: Error: Expected 'TYPE_FLOAT', but found 'LEFT_PAREN'.
+LINE 39: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 40: Error: Expected 'TYPE_INTEGER', but found 'LEFT_PAREN'.
+LINE 40: Recovered at synchronizing token 'SEMICOLON'
+LINE 41: Error: Expected 'TYPE_STRING', but found 'KW_ELSE'.
+LINE 41: Recovered at synchronizing token 'KW_ELSE'
+LINE 41 :: Error: Expected a type specification.
+LINE 41 :: Error: Expected TYPE_SPEC.
+LINE 41: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 37: Error: Expected 'TYPE_BOOLEAN', but found 'RIGHT_CURLY'.
+LINE 37: Recovered at synchronizing token 'RIGHT_CURLY'
+LINE 39: Error: Expected 'TYPE_CHARACTER', but found 'KW_ELSE'.
+LINE 39: Recovered at synchronizing token 'KW_ELSE'
+LINE 39: Error: Expected 'TYPE_FLOAT', but found 'LEFT_PAREN'.
+LINE 39: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 40: Error: Expected 'TYPE_INTEGER', but found 'LEFT_PAREN'.
+LINE 40: Recovered at synchronizing token 'SEMICOLON'
+LINE 41: Error: Expected 'TYPE_STRING', but found 'KW_ELSE'.
+LINE 41: Recovered at synchronizing token 'KW_ELSE'
+LINE 41 :: Error: Expected a type specification.
+LINE 41 :: Error: Expected type specification in array declaration.
+LINE 41: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 37: Error: Expected 'TYPE_BOOLEAN', but found 'RIGHT_CURLY'.
+LINE 37: Recovered at synchronizing token 'RIGHT_CURLY'
+LINE 39: Error: Expected 'TYPE_CHARACTER', but found 'KW_ELSE'.
+LINE 39: Recovered at synchronizing token 'KW_ELSE'
+LINE 39: Error: Expected 'TYPE_FLOAT', but found 'LEFT_PAREN'.
+LINE 39: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 40: Error: Expected 'TYPE_INTEGER', but found 'LEFT_PAREN'.
+LINE 40: Recovered at synchronizing token 'SEMICOLON'
+LINE 41: Error: Expected 'TYPE_STRING', but found 'KW_ELSE'.
+LINE 41: Recovered at synchronizing token 'KW_ELSE'
+LINE 41 :: Error: Expected a type specification.
+LINE 41 :: Error: Expected type specification or 'void' in function declaration.
+LINE 41: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 42 :: Error: Expected declaration statement.
+LINE 42: Recovered at synchronizing token 'SEMICOLON'
+LINE 43: Error: Expected 'IDENTIFIER', but found 'RIGHT_CURLY'.
+LINE 43: Recovered at synchronizing token 'RIGHT_CURLY'
+LINE 43 :: Error: Expected function identifier in function call.
+LINE 43: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 44: Error: Expected 'TYPE_BOOLEAN', but found 'KW_DISPLAY'.
+LINE 44: Recovered at synchronizing token 'SEMICOLON'
+LINE 49: Error: Expected 'TYPE_CHARACTER', but found 'KW_FOR'.
+LINE 49: Recovered at synchronizing token 'KW_FOR'
+LINE 49: Error: Expected 'TYPE_FLOAT', but found 'TYPE_INTEGER'.
+LINE 49: Recovered at synchronizing token 'SEMICOLON'
+LINE 49: Error: Expected 'TYPE_INTEGER', but found 'REL_LT'.
+LINE 49: Recovered at synchronizing token 'SEMICOLON'
+LINE 49: Error: Expected 'TYPE_STRING', but found 'UNARY_INC'.
+LINE 49: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 50 :: Error: Expected a type specification.
+LINE 50 :: Error: Expected a type specification in function definition.
+LINE 50: Recovered at synchronizing token 'SEMICOLON'
+LINE 50 :: Error: Expected a function call or definition.
+LINE 50: Recovered at synchronizing token 'SEMICOLON'
+LINE 50: Error: Expected 'LEFT_BRACKET', but found 'UNARY_INC'.
+LINE 50: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 51 :: Error: Expected '[' after identifier in array access.
+LINE 51: Recovered at synchronizing token 'SEMICOLON'
+LINE 52 :: Error: Expected array access in array assignment.
+LINE 52: Recovered at synchronizing token 'RIGHT_CURLY'
+LINE 53: Error: Expected 'TYPE_BOOLEAN', but found 'RIGHT_CURLY'.
+LINE 53: Recovered at synchronizing token 'RIGHT_CURLY'
+LINE 55: Error: Expected 'TYPE_CHARACTER', but found 'LEFT_PAREN'.
+LINE 55: Recovered at synchronizing token 'LEFT_CURLY'
+LINE 56: Error: Expected 'TYPE_FLOAT', but found 'LEFT_PAREN'.
+LINE 56: Recovered at synchronizing token 'SEMICOLON'
+LINE 59: Error: Expected 'TYPE_INTEGER', but found 'RIGHT_CURLY'.
+LINE 59: Recovered at synchronizing token 'RIGHT_CURLY'
+LINE 0 :: Error: Expected a type specification.
+LINE 0 :: Error: Expected a type specifier for array initialization.
+LINE 0: Error recovery failed: No synchronizing token found
+LINE 0 :: Error: Expected an array statement (assignment or initialization).
+LINE 0: Error recovery failed: No synchronizing token found
+LINE 0 :: Error: Unexpected token '(null)'. Attempting recovery...
+LINE 0: Error recovery failed: No synchronizing token found
+LINE 0 :: Error: Expected a type specification.
+LINE 0 :: Error: Expected TYPE_SPEC
+LINE 0 :: ERROR: Parsing failed at token 248: END
